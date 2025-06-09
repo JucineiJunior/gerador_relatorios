@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-light">Cadastrar Setor</h2>
+    <form method="post" class="form-primary">
+        {% csrf_token %}
+        <div class="text-light">
+            {{ form.as_p }}
+        </div>
+        <button class="btn btn-success" type="submit">Salvar</button>
+        <a href="/admin/?secao=setores" class="btn btn-secondary">Voltar</a>
+    </form>
+</div>
+{% endblock %}

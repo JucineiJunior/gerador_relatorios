@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4 text-light">
+    <h2>Excluir Setor</h2>
+    <p>Tem certeza que deseja excluir o setor <strong>{{ setor.nome }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Excluir</button>
+        <a href="/admin/?secao=setores" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

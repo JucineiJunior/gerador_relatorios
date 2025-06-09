@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4 bg-dark">
+    <h2>Configurar Relatório</h2>
+
+    <form id="relatorio-form" method="post" action="{% url 'admin_view' %}">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Nome:</label>
+            <input type="text" class="form-control" value="{{ relatorio.nome }}" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Setor:</label>
+            <select name="setor" class="form-select" required>
+                {% for setor in setores %}
+                <option value="{{ setor.id }}" {% if relatorio.setor.id == setor.id %}selected{% endif %}>
+                    {{ setor.nome }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Query SQL:</label>
+            <textarea name="query" class="form-control" rows="6" required>{{ relatorio.query }}</textarea>
+        </div>
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">Salvar Alterações</button>
+        <a href="{% url 'admin_view' %}?secao=relatorios" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog bg-dark">
+    <div class="modal-content bg-dark">
+      <div class="modal-header bg-dark">
+        <h5 class="modal-title bg-dark" id="confirmModalLabel">Confirmar Alterações</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body bg-dark">
+        Tem certeza que deseja salvar as alterações deste relatório?
+      </div>
+      <div class="modal-footer bg-dark">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('relatorio-form').submit();">Confirmar</button>
+        <a href="/admin/?secao=relatorios" class="btn btn-secondary mt-3">Cancelar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

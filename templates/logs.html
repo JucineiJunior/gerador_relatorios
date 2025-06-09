@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Logs de Atividades</h2>
+
+    <form method="get" class="mb-3">
+        <input type="text" name="usuario" placeholder="Usuário" value="{{ request.GET.usuario }}">
+        <input type="text" name="acao" placeholder="Ação" value="{{ request.GET.acao }}">
+        <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+    </form>
+
+    <ul class="list-group">
+        {% for log in logs %}
+        <li class="list-group-item">
+            <strong>{{ log.usuario.username }}</strong> - {{ log.acao }} <br>
+            <small class="text-muted">{{ log.data }}</small>
+        </li>
+        {% empty %}
+        <li class="list-group-item">Nenhuma atividade registrada.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

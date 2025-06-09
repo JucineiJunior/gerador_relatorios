@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="layout text-light bg-dark ">
+    <!-- Conteúdo principal -->
+    {% if relatorios %}
+    <div class="container-fluid mt-3">
+        <table class="table table-bordered table-hover table-striped table-sm table-dark">
+            <thead>
+                <tr class="table-primary">
+                    <th scope="col">Nome</th>
+                    <th scope="col">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for relatorio in relatorios %}
+                <tr class="table-secondary">
+                    {% if not setor_selecionado or relatorio.setores == setor_selecionado %}
+                    <th scope="row">{{relatorio.nome}}</th>
+                    <td>
+                        <a href="?relatorio={{relatorio.id}}" class="btn btn-sm btn-warning">Abrir</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr class="table-danger">
+                    <td colspan="4">Nenhum relatorio encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif relatorio_selecionado %}
+    <div class="container-fluid text-light" >
+    <h3>Filtros para: {{ relatorio_selecionado.nome }}</h3>
+    <form method="get" action="{% url 'gerar_relatorio' relatorio_selecionado.id %}">
+        <input type="hidden" name="relatorio_id" value="{{ relatorio_selecionado.id }}">
+        {% for filtro in filtros %}
+            <div class="mb-2">
+                <label>{{ filtro.nome }}</label>
+                {% if filtro.tipo == "text" %}
+                    <input type="text" name="{{ filtro.nome }}" class="form-control">
+                {% elif filtro.tipo == "number" %}
+                    <input type="number" name="{{ filtro.nome }}" class="form-control">
+                {% elif filtro.tipo == "date" %}
+                    <input type="date" name="{{ filtro.nome }}" class="form-control">
+                {% elif filtro.tipo == "empresa" %}
+                    <select>
+                      {% for emp in empresa %}
+                      <option class="bg-secondary text-light" value="{{emp.nome}}">{{emp.nome}}</option>  
+                      {% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+    </form>
+    </div>
+    {% endif %}
+{% endblock %}
