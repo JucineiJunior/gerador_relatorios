@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h3>Confirmar Exclusão</h3>
+    <p>Tem certeza que deseja excluir o usuário <strong>{{ usuario.username }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sim, excluir</button>
+        <a href="/admin/?secao=usuarios" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

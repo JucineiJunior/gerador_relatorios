@@ -1,0 +1,325 @@
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+
+from .forms import (
+    AlterarSenhaForm,
+    CadastroUsuarioForm,
+    EditarUsuarioForm,
+    FiltroForm,
+    RelatorioForm,
+    SetorForm,
+    EmpresaForm,
+)
+from .models import Filtros, Logs, Relatorios, Setores, Perfil, Empresa
+from gerador_relatorios.utils import registrar_log
+
+
+def is_superuser(user):
+    return user.is_authenticated and user.is_superuser
+
+
+# Create your views here.
+
+
+# admin_view
+@login_required
+@user_passes_test(is_superuser)
+def admin_view(request):
+    secao = request.GET.get("secao", "")
+
+    context = {"secao": secao}
+
+    if secao == "relatorios":
+        context["relatorios"] = Relatorios.objects.all()  # type: ignore
+    elif secao == "logs":
+        context["logs"] = Logs.objects.all()  # type: ignore
+    elif secao == "setores":
+        context["setores"] = Setores.objects.all()  # type: ignore
+    elif secao == "usuarios":
+        context["usuarios"] = (
+            Perfil.objects.select_related("user").prefetch_related("setor").all()  # type: ignore
+        )
+    elif secao == "empresa":
+        context["empresa"] = Empresa.objects.all()  # type: ignore
+
+    print(context)
+    return render(request, "admin.html", context)
+
+
+# criar_usuario
+@user_passes_test(is_superuser)
+@login_required
+def cadastrar_usuario(request):
+    if request.method == "POST":
+        form = CadastroUsuarioForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data["senha"])
+            user.save()
+
+            perfil = Perfil.objects.create(user=user)  # type: ignore
+            perfil.relatorios.set(form.cleaned_data["relatorios"])
+            perfil.save()
+
+            registrar_log(perfil, f"Cadastrou o usuário {perfil.user}")
+
+            messages.success(request, "Usuário cadastrado com sucesso!")
+            return redirect("/admin/?secao=Perfil")
+    else:
+        form = CadastroUsuarioForm()
+
+    return render(request, "usuarios/cadastrar.html", {"form": form})
+
+
+# editar_usuario
+@user_passes_test(is_superuser)
+@login_required
+def editar_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    perfil, _ = Perfil.objects.get_or_create(user=user)  # type: ignore
+
+    if request.method == "POST":
+        form = EditarUsuarioForm(request.POST)
+        if form.is_valid():
+            user.is_superuser = form.cleaned_data["is_superuser"]
+            user.email = form.cleaned_data["email"]
+            user.save()
+
+            perfil.nome = form.cleaned_data["nome"]
+            perfil.relatorios.set(form.cleaned_data["relatorios"])
+            perfil.setor.set(form.cleaned_data["setores"])
+            perfil.save()
+
+            registrar_log(perfil, f"editou o usuario {perfil.nome}")
+
+            messages.success(request, "Usuário atualizado com sucesso!")
+            return redirect("/admin/?secao=usuarios")
+    else:
+        form = EditarUsuarioForm(
+            initial={
+                "nome": perfil.nome,
+                "usuario": user.username,
+                "email": user.email,
+                "is_superuser": user.is_superuser,
+                "relatorios": perfil.relatorios.all(),
+                "setores": perfil.setor.all(),
+            },
+        )
+
+    return render(
+        request,
+        "usuarios/editar.html",
+        {"form": form, "usuario": user, "perfil": perfil},
+    )
+
+
+# alterar_senha
+@user_passes_test(is_superuser)
+@login_required
+def alterar_senha_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    usuario, _ = Perfil.objects.get_or_create(user=user)  # type: ignore
+
+    if request.method == "POST":
+        form = AlterarSenhaForm(request.POST)
+        if form.is_valid():
+            user.set_password(form.cleaned_data["nova_senha"])
+            user.save()
+            perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
+            registrar_log(perfil, f"Alterou a senha do usuário {user.username}")
+            messages.success(request, "Senha atualizada com sucesso!")
+            return redirect("/admin/?secao=usuarios")
+        else:
+            return "Erro"
+    else:
+        form = AlterarSenhaForm()
+
+    return render(
+        request, "usuarios/alterar_senha.html", {"form": form, "usuario": usuario}
+    )
+
+
+# deletar_usuario
+@user_passes_test(is_superuser)
+@login_required
+def deletar_usuario(request, user_id):
+    usuario = Perfil.objects.get(id=user_id)  # type: ignore
+
+    if request.method == "POST":
+        perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
+        registrar_log(perfil, f"Excluiu o usuário {usuario.username}")
+        usuario.delete()
+        messages.success(request, "Usuário excluído com sucesso!")
+        return redirect("/admin/?secao=Perfil")
+
+    return render(request, "Perfil/deletar.html", {"usuario": usuario})
+
+
+# criar_relatorio
+@user_passes_test(is_superuser)
+@login_required
+def cadastrar_relatorio(request):
+    if request.method == "POST":
+        relatorio_form = RelatorioForm(request.POST)
+        filtro_formset = FiltroForm(request.POST, queryset=Filtros.objects.all())  # type: ignore
+
+        if relatorio_form.is_valid() and filtro_formset.is_valid():
+            relatorio = relatorio_form.save()  # Pode salvar direto agora
+
+            for filtro_form in filtro_formset:
+                filtro = filtro_form.save(commit=False)
+                filtro.relatorio = relatorio  # ← Define o ForeignKey corretamente
+                filtro.save()
+
+            setor_nome = relatorio.setores.nome
+            perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
+            registrar_log(
+                perfil,
+                f"Cadastrou o relatório '{relatorio.nome}' no setor: {setor_nome}",
+            )
+
+            messages.success(request, "Relatório cadastrado com filtros com sucesso!")
+            return redirect("/admin/?secao=relatorios")
+        else:
+            print("Erros no relatorio_form:")
+            print(relatorio_form.errors)  # ← Isto mostra exatamente o que está errado
+            print("Dados recebidos:")
+            print(
+                relatorio_form.cleaned_data
+                if relatorio_form.is_valid()
+                else relatorio_form.data
+            )
+    else:
+        relatorio_form = RelatorioForm()
+        filtro_formset = FiltroForm(queryset=Filtros.objects.none())  # type: ignore
+
+    context = {
+        "relatorio_form": relatorio_form,
+        "filtro_formset": filtro_formset,
+    }
+    print(context)
+    return render(request, "relatorios/cadastrar.html", context)
+
+
+# editar_relatorio
+@user_passes_test(is_superuser)
+@login_required
+def editar_relatorios(request, relatorio_id):
+    relatorio = get_object_or_404(Relatorios, id=relatorio_id)
+
+    if request.method == "POST":
+        relatorio.query = request.POST.get("query", "")
+        setor_id = request.POST.get("setor")
+        if setor_id:
+            relatorio.setor_id = setor_id
+        relatorio.save()
+
+        perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
+        registrar_log(perfil, f"Alterou o relatório '{relatorio.nome}'")
+
+        messages.success(request, "Relatório atualizado com sucesso.")
+        return redirect("/admin/?secao=relatorios")
+
+    setores = Setores.objects.all()  # type: ignore
+    return render(
+        request,
+        "relatorios/configurar.html",
+        {"relatorio": relatorio, "setores": setores},
+    )
+
+
+# deletar_relatorio
+@user_passes_test(is_superuser)
+@login_required
+def excluir_relatorio(request, relatorio_id):
+    relatorio = get_object_or_404(Relatorios, id=relatorio_id)
+    if request.method == "POST":
+        perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
+        registrar_log(perfil, f"Excluiu o relatório '{relatorio.nome}'")
+        relatorio = Relatorios.objects.get(id=relatorio_id).delete()[1]  # type: ignore
+        messages.success(request, "Relatório excluído com sucesso!")
+        return redirect("/admin/?secao=relatorios")
+    return render(request, "relatorios/excluir.html", {"relatorio": relatorio})
+
+
+# criar_setor
+@user_passes_test(is_superuser)
+@login_required
+def criar_setor(request):
+    if request.method == "POST":
+        form = SetorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            registrar_log(
+                Perfil.objects.get(id=request.user.id),  # type: ignore
+                f"Criou um setor {form.save()}",
+            )
+            messages.success(request, "Setor criado com sucesso!")
+            return redirect("/admin/?secao=setores")
+    else:
+        form = SetorForm()
+    return render(request, "setores/criar.html", {"form": form})
+
+
+# deletar_setor
+@user_passes_test(is_superuser)
+@login_required
+def excluir_setor(request, setor_id):
+    setor = get_object_or_404(Setores, id=setor_id)
+    if request.method == "POST":
+        setor.delete()
+        messages.success(request, "Setor excluído com sucesso!")
+        return redirect("/admin/?secao=setores")
+    return render(request, "setores/excluir.html", {"setor": setor})
+
+
+# vizualizar_logs
+@user_passes_test(is_superuser)
+@login_required
+def visualizar_logs(request):
+    logs = Logs.objects.all().order_by("data").desc()  # type: ignore
+
+    # filtros opcionais
+    usuario = request.GET.get("usuario")
+    if usuario != "":
+        logs = logs.filter(usuario__username__icontains=usuario)
+
+    acao = request.GET.get("acao")
+    if acao != "":
+        logs = logs.filter(acao__icontains=acao)
+
+    print(acao, "\n", usuario)
+    return render(request, "admin/logs.html", {"secao": "logs", "logs": logs})
+
+
+# criar_empresa
+@user_passes_test(is_superuser)
+@login_required
+def criar_empresa(request):
+    if request.method == "POST":
+        form = EmpresaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            registrar_log(
+                Perfil.objects.get(id=request.user.id),  # type: ignore
+                f"Cadastrou empresa {form.save}",
+            )
+            messages.success(request, "Empresa criada com sucesso!")
+            return redirect("/admin/?secao=empresa")
+    else:
+        form = EmpresaForm()
+    return render(request, "empresa/criar.html", {"form": form})
+
+
+# deletar_empresa
+@user_passes_test(is_superuser)
+@login_required
+def excluir_empresa(request, empresa_id):
+    empresa = get_object_or_404(Empresa, id=empresa_id)
+    if request.method == "POST":
+        empresa.delete()
+        messages.success(request, "Empresa excluído com sucesso!")
+        return redirect("/admin/?secao=empresa")
+    return render(request, "empresa/excluir.html", {"empresa": empresa})

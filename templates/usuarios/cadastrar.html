@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid bg-dark">
+    <h3>Cadastrar Novo Usuário</h3>
+    <form method="post" class="form-primary">
+        {% csrf_token %}
+        <div class="mb-2 mt-2 bg-secondary">
+            {{ form.nome.label_tag }}<br>
+            {{ form.nome }}
+        </div>
+        <div class="mb-2 mt-2 bg-secondary">
+            {{ form.email.label_tag }}<br>
+            {{ form.email }}
+        </div>
+        <div class="mb-2 mt-2 bg-secondary">
+            {{ form.senha.label_tag }}<br>
+            {{ form.senha }}
+        </div>
+        <div class="mb-2 mt-2 bg-secondary">
+            {{ form.confirmar_senha.label_tag }}<br>
+            {{ form.confirmar_senha }}
+        </div>
+        <div class="mb-2 mt-2 bg-secondary">
+            {{ form.is_superuser }}
+            {{ form.is_superuser.label_tag }}
+        </div>
+        <div class="mb-2 mt-2 bg-secondary">
+            {{ form.relatorios_permitidos.label_tag }}<br>
+            {{ form.relatorios_permitidos }}
+        </div>
+        <div class="mb-2 mt-2 bg-secondary">
+            {{ form.setores.label_tag }}<br>
+            {{ form.setores }}
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="/admin/?secao=usuarios" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

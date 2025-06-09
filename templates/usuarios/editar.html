@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container bg-secondary text-light rounded">
+    <h3 class="mb-4">Editar Usuário: {{ perfil.nome }}</h3>
+    <form method="post" class="form-primary ">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="mb-2 mt-2 ">
+            {{ form.nome.label_tag }} {{ form.nome }}
+        </div>
+        <div class="mb-2 mt-2 ">
+            {{ form.usuario.label_tag }} {{ form.usuario }}
+        </div>
+        <div class="mb-2 mt-2 ">
+            {{ form.email.label_tag }} {{ form.email }}
+        </div>
+        <div class="mb-2 mt-2 ">
+            {{ form.is_superuser.label_tag }} {{ form.is_superuser }}
+        </div>
+        <div class="mb-2 mt-2 bg-white text-dark rounded ">
+            {{ form.relatorios.label_tag }}<br>
+            {{ form.relatorios }}
+        </div>
+        <div class="mb-2 mt-2 p-2 bg-white text-dark rounded ">
+            {{ form.setores.label }} <br>
+            {{ form.setores }}
+        </div>
+        <button type="submit" class="btn btn-success mt-2 mb-2 ">Salvar alterações</button>
+        <a href="/admin/?secao=usuarios" class="btn btn-warning mt-2 mb-2 ">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
