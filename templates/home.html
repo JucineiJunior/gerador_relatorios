@@ -32,23 +32,24 @@
         </table>
     </div>
     {% elif relatorio_selecionado %}
-    <div class="container-fluid text-light" >
+    <div class="container w-50 mx-auto border rounded bg-dark text-light ">
     <h3>Filtros para: {{ relatorio_selecionado.nome }}</h3>
-    <form method="get" action="{% url 'gerar_relatorio' relatorio_selecionado.id %}">
+    <form method="POST" action="{% url 'gerar_relatorio' relatorio_selecionado.id %}">
+        {% csrf_token %}
         <input type="hidden" name="relatorio_id" value="{{ relatorio_selecionado.id }}">
         {% for filtro in filtros %}
-            <div class="mb-2">
+            <div class=" mb-2">
                 <label>{{ filtro.exibicao }}</label>
-                {% if filtro.tipo == "text" %}
-                    <input type="text" name="{{ filtro.exibicao }}" class="form-control">
-                {% elif filtro.tipo == "number" %}
-                    <input type="number" name="{{ filtro.exibicao }}" class="form-control">
-                {% elif filtro.tipo == "date" %}
+                {% if filtro.tipo == "texto" %}
+                    <input type="text" name="{{ filtro.exibicao }}" class="form-control ">
+                {% elif filtro.tipo == "numero" %}
+                    <input type="number" name="{{ filtro.exibicao }}" class="form-control ">
+                {% elif filtro.tipo == "data" %}
                     <input type="date" name="{{ filtro.exibicao }}" class="form-control">
                 {% elif filtro.tipo == "empresa" %}
                     <select>
                       {% for emp in empresa %}
-                      <option class="bg-secondary text-light" value="{{emp.nome}}">{{emp.nome}}</option>  
+                      <option class=" bg-dark text-light" value="{{emp.nome}}">{{emp.nome}}</option>  
                       {% endfor %}
                     </select>
                 {% endif %}

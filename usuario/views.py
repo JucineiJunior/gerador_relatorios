@@ -51,18 +51,31 @@ def home_view(request):
 
 def gerar_relatorio(request, relatorio_id):
     relatorio = get_object_or_404(Relatorios, id=relatorio_id)
-    filtros = Filtros.objects.filter(relatorio=relatorio)  # type: ignore
+    filtro = Filtros.objects.filter(relatorio_id=relatorio_id)
 
+    # Inicializa variáveis
     resultados = []
-    erro = None
-
+    filtros_request = {}
+    
     if request.method == "POST":
-        executar_query(relatorio, filtros)
+        # Extrai filtros do request.POST (ajuste conforme seus campos)
+        filtros_request = filtro
+        
+        # Debug: imprima os filtros recebidos
+        print("Filtros recebidos:", filtros_request)
+        
+        try:
+            resultados = executar_query(relatorio, filtros_request, using='banco_remoto')
+            # Debug: imprima os resultados obtidos
+            print("Resultados da query:", resultados)
+        except Exception as e:
+            print("Erro ao executar query:", str(e))
+            # Você pode adicionar uma mensagem de erro ao contexto
 
     context = {
         "relatorio": relatorio,
-        "filtros": filtros,
+        "filtros": filtros_request,  # Envia os filtros usados de volta para o template
         "resultados": resultados,
-        "erro": erro,
     }
+
     return render(request, "relatorios/gerar.html", context)
