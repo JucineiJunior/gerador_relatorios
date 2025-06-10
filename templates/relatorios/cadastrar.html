@@ -1,87 +1,11 @@
-{% extends 'base.html' %}
-{% load static %}
-
+{% extends "base.html" %}
 {% block content %}
-<div class="container mt-4 bg-dark text-light ">
-    <h2>Cadastrar Relatório</h2>
-    <form method="post" id="cadastro" >
+<div class="container bg-dark text-light rounded border">
+    <h2>Novo Relatório</h2>
+    <form method="post" class="mb-2 mt-2 ">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="nome">Nome do Relatório</label>
-            <input type="text" name="nome" class="form-control" required>
-        </div>
-        <div class="form-group mt-3">
-            <label for="query">Query SQL</label>
-            <textarea name="query" class="form-control query-box" rows="10" style="resize: vertical;" required></textarea>
-        </div>
-        <div class="col-md-6">
-            <label for="id_setores">Setores:</label>
-            {{ relatorio_form.setores }}
-        </div>
-        <div class="col-md-6 bg-dark color-dark">
-            <label>Filtros</label>
-            <div id="filtros-container"></div>
-            {{ filtroform_set }}
-            <button type="button" class="btn btn-sm btn-success mt-2" onclick="adicionarFiltro()">+ Adicionar Filtro</button>
-        </div>
-        <div class="col mt-2">
-            <button type="submit" class="btn border btn-primary mt-2" onclick="hidden_forms()">Salvar</button>
-            <a href="/admin/?secao=relatorios" class="btn btn-secondary mt-2">Voltar</a>
-        </div>
+        {{ form.as_p }}
+        <button type="submit" class="mb-2 mt-4 ml-4">Salvar</button>
     </form>
 </div>
-<script>
-    let filtroCount = 0;
-    function adicionarFiltro() {
-        const container = document.getElementById('filtros-container');
-        const filtroDiv = document.createElement('div');
-        filtroDiv.className = 'filtro-item border rounded p-3 mb-2 bg-dark color-dark';
-        const id = `filtro_${filtroCount}`;
-        filtroDiv.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2 bg-dark color-dark">
-                <strong>Filtro ${filtroCount + 1}</strong>
-                <button type="button" class="btn btn-danger btn-sm bg-dark color-dark" onclick="this.closest('.filtro-item').remove()">– Remover</button>
-            </div>
-            <div class="row bg-dark color-dark">
-                <div class="col-md-6 mb-2 bg-dark color-dark">
-                    <label>Nome</label>
-                    <input type="text" name="filtro_${filtroCount}_exibicao" class="form-control" placeholder="Nome do filtro" required>
-                </div>
-                <div class="col-md-6 mb-2 bg-dark color-dark">
-                    <label>Campo</label>
-                    <input type="text" name="filtro_${filtroCount}_variavel" class="form-control" placeholder="Campo SQL" required>
-                </div>
-                <div class="col-md-6 mb-2 bg-dark color-dark">
-                    <label>Tipo</label>
-                    <select name="filtro_${filtroCount}_tipo" class="form-control" required>
-                        <option value="">Selecione</option>
-                        <option value="texto">Texto</option>
-                        <option value="numero">Número</option>
-                        <option value="data">Data</option>
-                        <option value="select">Empresa</option>
-                    </select>
-                </div>
-            </div>
-        `;
-        container.appendChild(filtroDiv);
-        filtroCount++;
-        console.log(filtroCount);
-    }
-    function hidden_forms() {
-    const container = document.getElementById('filtros-container');
-    
-    // Remove inputs anteriores para evitar duplicatas
-    const antigos = document.querySelectorAll('input[name^="form-"]');
-    antigos.forEach(input => input.remove());
-
-    // Cria inputs hidden do ManagementForm
-    container.insertAdjacentHTML('beforeend', `
-        <input type="hidden" name="form-TOTAL_FORMS" value="${filtroCount}">
-        <input type="hidden" name="form-INITIAL_FORMS" value="0">
-        <input type="hidden" name="form-MIN_NUM_FORMS" value="0">
-        <input type="hidden" name="form-MAX_NUM_FORMS" value="1000">
-        `);
-    console.log(filtroCount);
-    }
-</script>
-{% endblock %}
+{% endblock  %}

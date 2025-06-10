@@ -15,6 +15,8 @@ from .views import (
     excluir_setor,
     criar_empresa,
     excluir_empresa,
+    adicionar_filtros,
+    confirmar_adicao_filtros,
 )
 
 urlpatterns = [
@@ -46,4 +48,6 @@ urlpatterns = [
     path("logs/", visualizar_logs, name="visualizar_logs"),
     path("empresa/cadastrar/", criar_empresa, name="criar_empresa"),
     path("empresa/excluir/<int:empresa_id>/", excluir_empresa, name="excluir_empresa"),
+    path('relatorios/<int:relatorio_id>/confirmar/', confirmar_adicao_filtros, name='confirmar_adicao_filtros'),
+    path('relatorios/<int:relatorio_id>/filtros/<int:quantidade>/', adicionar_filtros, name='adicionar_filtros'),
 ]

@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.forms import modelformset_factory
 
 from .forms import (
     AlterarSenhaForm,
@@ -161,47 +162,44 @@ def deletar_usuario(request, user_id):
 @user_passes_test(is_superuser)
 @login_required
 def cadastrar_relatorio(request):
-    if request.method == "POST":
-        relatorio_form = RelatorioForm(request.POST)
-        filtro_formset = FiltroForm(request.POST, queryset=Filtros.objects.all())  # type: ignore
-
-        if relatorio_form.is_valid() and filtro_formset.is_valid():
-            relatorio = relatorio_form.save()  # Pode salvar direto agora
-
-            for filtro_form in filtro_formset:
-                filtro = filtro_form.save(commit=False)
-                filtro.relatorio = relatorio  # ← Define o ForeignKey corretamente
-                filtro.save()
-
-            setor_nome = relatorio.setores.nome
-            perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
-            registrar_log(
-                perfil,
-                f"Cadastrou o relatório '{relatorio.nome}' no setor: {setor_nome}",
-            )
-
-            messages.success(request, "Relatório cadastrado com filtros com sucesso!")
-            return redirect("/admin/?secao=relatorios")
-        else:
-            print("Erros no relatorio_form:")
-            print(relatorio_form.errors)  # ← Isto mostra exatamente o que está errado
-            print("Dados recebidos:")
-            print(
-                relatorio_form.cleaned_data
-                if relatorio_form.is_valid()
-                else relatorio_form.data
-            )
+    if request.method == 'POST':
+        form = RelatorioForm(request.POST)
+        if form.is_valid():
+            relatorio = form.save()
+            return redirect('confirmar_adicao_filtros', relatorio_id=relatorio.id)
     else:
-        relatorio_form = RelatorioForm()
-        filtro_formset = FiltroForm(queryset=Filtros.objects.none())  # type: ignore
+        form = RelatorioForm()
+    return render(request, 'relatorios/cadastrar.html', {'form': form})
 
-    context = {
-        "relatorio_form": relatorio_form,
-        "filtro_formset": filtro_formset,
-    }
-    print(context)
-    return render(request, "relatorios/cadastrar.html", context)
+def confirmar_adicao_filtros(request, relatorio_id):
+    if request.method == 'POST':
+        deseja_filtros = request.POST.get('deseja_filtros')
+        quantidade = int(request.POST.get('quantidade', 0))
 
+        if deseja_filtros == 'sim' and quantidade > 0:
+            return redirect('adicionar_filtros', relatorio_id=relatorio_id, quantidade=quantidade)
+        else:
+            return redirect('lista_relatorios')  # Ou outra página final
+
+    return render(request, 'filtros/confirmar.html', {'relatorio_id': relatorio_id})
+
+def adicionar_filtros(request, relatorio_id, quantidade):
+    relatorio = get_object_or_404(Relatorios, id=relatorio_id)
+    FiltroFormSet = modelformset_factory(Filtros, form=FiltroForm, extra=int(quantidade))
+
+    if request.method == 'POST':
+        formset = FiltroFormSet(request.POST, queryset=Filtros.objects.none())
+        if formset.is_valid():
+            for form in formset:
+                if form.cleaned_data:
+                    filtro = form.save(commit=False)
+                    filtro.relatorio = relatorio
+                    filtro.save()
+            return redirect('/admin/?secao=relatorios')
+    else:
+        formset = FiltroFormSet(queryset=Filtros.objects.none())
+
+    return render(request, 'filtros/adicionar.html', {'relatorio': relatorio, 'formset': formset})
 
 # editar_relatorio
 @user_passes_test(is_superuser)

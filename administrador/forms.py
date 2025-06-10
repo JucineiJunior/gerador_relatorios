@@ -1,6 +1,5 @@
 # forms.py
 from django import forms
-from django.forms import modelformset_factory
 from .models import Empresa, Filtros, Relatorios, Setores, Perfil
 
 FILTER_TYPES = [
@@ -88,17 +87,12 @@ class AlterarSenhaForm(forms.Form):
 class RelatorioForm(forms.ModelForm):
     class Meta:
         model = Relatorios
-        fields = ["nome", "query", "setores"]
+        fields = ['nome', 'query', 'setores']
 
-
-# cadastrar_filtro
-class FiltroInlineForm(forms.ModelForm):
+class FiltroForm(forms.ModelForm):
     class Meta:
         model = Filtros
-        fields = ["exibicao", "variavel", "tipo"]
-
-
-FiltroForm = modelformset_factory(Filtros, form=FiltroInlineForm, can_delete=True)
+        fields = ['exibicao', 'variavel', 'tipo']
 
 
 # cadastrar_setor
