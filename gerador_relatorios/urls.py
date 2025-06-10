@@ -20,9 +20,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
+from administrador import urls as admin_urls
+from usuario import urls as home_urls
+
 urlpatterns = [
-    path("", include("usuario.urls")),
-    path("admin/", include("administrador.urls")),
+    path("", include(home_urls), name="home"),
+    path("admin/", include(admin_urls), name="admin"),
     path(
         "login/",
         auth_views.LoginView.as_view(template_name="login.html"),

@@ -14,18 +14,11 @@ def ler_log(log: Logs):
     return f"{log.responsavel} - {log.acao} - " + data
 
 
-def executar_query(relatorio, filtros):
-    sql = relatorio.sql  # considerando que você tem um campo "sql" no modelo
-    params = []
+def executar_query(relatorio, filtros, using='banco_remoto'):
+    sql = relatorio.query # considerando que você tem um campo "sql" no modelo
+    params = filtros
 
-    if filtros.get("data_inicio"):
-        sql += " WHERE data >= %s"
-        params.append(filtros["data_inicio"])
-    if filtros.get("data_fim"):
-        sql += " AND data <= %s"
-        params.append(filtros["data_fim"])
-
-    with connection.cursor() as cursor:
+    with connection[using].cursor() as cursor:
         cursor.execute(sql, params)
         columns = [col[0] for col in cursor.description]
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
