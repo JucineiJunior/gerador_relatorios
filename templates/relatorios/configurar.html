@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4 bg-dark">
+<div class="container mt-4 bg-dark text-light">
     <h2>Configurar Relatório</h2>
 
     <form id="relatorio-form" method="post" action="{% url 'admin_view' %}">
@@ -27,25 +27,25 @@
             <textarea name="query" class="form-control" rows="6" required>{{ relatorio.query }}</textarea>
         </div>
 
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">Salvar Alterações</button>
-        <a href="{% url 'admin_view' %}?secao=relatorios" class="btn btn-secondary">Cancelar</a>
+        <button type="button" class="btn btn-success " data-bs-toggle="modal" data-bs-target="#confirmModal">Salvar Alterações</button>
+        <a href="{% url 'admin_view' %}?secao=relatorios" class="btn btn-secondary ">Cancelar</a>
     </form>
 </div>
 
 <!-- Modal de Confirmação -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog bg-dark">
-    <div class="modal-content bg-dark">
-      <div class="modal-header bg-dark">
-        <h5 class="modal-title bg-dark" id="confirmModalLabel">Confirmar Alterações</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+<div class="modal fade text-light " id="confirmModal" tabindex="-2" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog text-light bg-dark ">
+    <div class="modal-content text-light bg-dark ">
+      <div class="modal-header text-light bg-dark ">
+        <h5 class="modal-title text-light bg-dark" id="confirmModalLabel">Confirmar Alterações</h5>
+        <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
-      <div class="modal-body bg-dark">
+      <div class="modal-body text-light bg-dark">
         Tem certeza que deseja salvar as alterações deste relatório?
       </div>
-      <div class="modal-footer bg-dark">
-        <button type="button" class="btn btn-primary" onclick="document.getElementById('relatorio-form').submit();">Confirmar</button>
-        <a href="/admin/?secao=relatorios" class="btn btn-secondary mt-3">Cancelar</a>
+      <div class="modal-footer text-light bg-dark">
+        <button type="button" class="btn btn-primary mt-2 " onclick="document.getElementById('relatorio-form').submit();">Confirmar</button>
+        <a href="/admin/?secao=relatorios" class="btn btn-secondary mt-2 ">Cancelar</a>
       </div>
     </div>
   </div>

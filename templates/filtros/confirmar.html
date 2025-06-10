@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container border bg-dark text-light rounded">
+    <h2>Deseja adicionar filtros?</h2>
+
+    <form method="post">
+    {% csrf_token %}
+    <p>
+        <label>Adicionar filtros?</label><br>
+        <input type="radio" name="deseja_filtros" value="sim" required> Sim
+        <input type="radio" name="deseja_filtros" value="nao"> Não
+    </p>
+    <p>
+        <label>Quantidade de filtros:</label>
+        <input type="number" name="quantidade" min="1" max="20">
+    </p>
+    <button type="submit">Continuar</button>
+    </form>
+</div>
+{% endblock content %}

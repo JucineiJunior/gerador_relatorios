@@ -4,29 +4,34 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Setores(models.Model):
-    nome = models.CharField(max_length=255)
+    nome = models.CharField(max_length=100)
 
-    def __str__(self):  # type: ignore
+    def __str__(self):
         return self.nome
-
 
 class Relatorios(models.Model):
-    nome = models.CharField(max_length=255)
-    setores = models.ForeignKey(Setores, on_delete=models.SET_DEFAULT, default=1)
-    query = models.CharField(max_length=255)
+    nome = models.CharField(max_length=100)
+    query = models.TextField()
+    setores = models.ForeignKey(Setores, on_delete=models.CASCADE)
 
-    def __str__(self):  # type: ignore
+    def __str__(self):
         return self.nome
 
-
 class Filtros(models.Model):
-    exibicao = models.CharField(max_length=255)
-    variavel = models.CharField(max_length=255)
-    relatorio = models.ForeignKey(Relatorios, on_delete=models.CASCADE)
-    tipo = models.CharField(max_length=255)
+    TIPO_CHOICES = [
+        ('texto', 'Texto'),
+        ('numero', 'Número'),
+        ('data', 'Data'),
+        ('empresa', 'Empresa'),
+    ]
 
-    def __str__(self):  # type: ignore
-        return self.exibicao
+    relatorio = models.ForeignKey(Relatorios, on_delete=models.CASCADE, related_name='filtros')
+    exibicao = models.CharField(max_length=100)
+    variavel = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
+
+    def __str__(self):
+        return f"{self.exibicao} ({self.variavel})"
 
 
 class Perfil(models.Model):

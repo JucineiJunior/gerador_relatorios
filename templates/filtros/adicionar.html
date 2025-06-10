@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container bg-dark text-light border rounded ">
+    <h2>Adicionar Filtros para: {{ relatorio.nome }}</h2>
+    <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        <fieldset>
+        {{ form.as_p }}
+        </fieldset>
+    {% endfor %}
+    <button type="submit">Salvar Filtros</button>
+    </form>
+</div>
+{% endblock  %}

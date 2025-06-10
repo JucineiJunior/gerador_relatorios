@@ -38,13 +38,13 @@
         <input type="hidden" name="relatorio_id" value="{{ relatorio_selecionado.id }}">
         {% for filtro in filtros %}
             <div class="mb-2">
-                <label>{{ filtro.nome }}</label>
+                <label>{{ filtro.exibicao }}</label>
                 {% if filtro.tipo == "text" %}
-                    <input type="text" name="{{ filtro.nome }}" class="form-control">
+                    <input type="text" name="{{ filtro.exibicao }}" class="form-control">
                 {% elif filtro.tipo == "number" %}
-                    <input type="number" name="{{ filtro.nome }}" class="form-control">
+                    <input type="number" name="{{ filtro.exibicao }}" class="form-control">
                 {% elif filtro.tipo == "date" %}
-                    <input type="date" name="{{ filtro.nome }}" class="form-control">
+                    <input type="date" name="{{ filtro.exibicao }}" class="form-control">
                 {% elif filtro.tipo == "empresa" %}
                     <select>
                       {% for emp in empresa %}
