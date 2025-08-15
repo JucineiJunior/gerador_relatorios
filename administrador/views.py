@@ -45,7 +45,6 @@ def admin_view(request):
     elif secao == "empresa":
         context["empresa"] = Empresa.objects.all()  # type: ignore
 
-    print(context)
     return render(request, "admin.html", context)
 
 
@@ -174,16 +173,18 @@ def cadastrar_relatorio(request):
 def confirmar_adicao_filtros(request, relatorio_id):
     if request.method == 'POST':
         deseja_filtros = request.POST.get('deseja_filtros')
-        quantidade = int(request.POST.get('quantidade', 0))
-
+        try:
+            quantidade = int(request.POST.get('quantidade', 0))
+        except:
+            quantidade = 0
         if deseja_filtros == 'sim' and quantidade > 0:
             return redirect('adicionar_filtros', relatorio_id=relatorio_id, quantidade=quantidade)
         else:
-            return redirect('lista_relatorios')  # Ou outra página final
+            return redirect('/admin/?secao=relatorios')  # Ou outra página final
 
     return render(request, 'filtros/confirmar.html', {'relatorio_id': relatorio_id})
 
-def adicionar_filtros(request, relatorio_id, quantidade):
+def adicionar_filtros(request, relatorio_id, quantidade=0):
     relatorio = get_object_or_404(Relatorios, id=relatorio_id)
     FiltroFormSet = modelformset_factory(Filtros, form=FiltroForm, extra=int(quantidade))
 
@@ -288,7 +289,6 @@ def visualizar_logs(request):
     if acao != "":
         logs = logs.filter(acao__icontains=acao)
 
-    print(acao, "\n", usuario)
     return render(request, "admin/logs.html", {"secao": "logs", "logs": logs})
 
 

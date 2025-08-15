@@ -22,13 +22,15 @@ from django.urls import include, path
 
 from administrador import urls as admin_urls
 from usuario import urls as home_urls
+from .views import CustomLoginView
 
 urlpatterns = [
     path("", include(home_urls), name="home"),
     path("admin/", include(admin_urls), name="admin"),
     path(
         "login/",
-        auth_views.LoginView.as_view(template_name="login.html"),
+        CustomLoginView.as_view(template_name="login.html"),
         name="login",
     ),
+    path("logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
