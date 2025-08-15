@@ -79,14 +79,14 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },
-    'banco_remoto': {
-        'ENGINE': 'django.db.backends.postgresql',  # ou mysql, oracle, etc
-        'NAME': 'redetrevo',
-        'USER': 'rede_trevo_read',
-        'PASSWORD': 'x6gqt0OS5BcAdJuu7RF4U9iEOsAskE36',
-        'HOST': 'db.clientes-externos.qualityautomacao.com.br',  # ou IP
-        'PORT': '6432',  # porta padrão do PostgreSQL
-    }
+    "webposto": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "redetrevo",
+        "USER": "rede_trevo_read",
+        "PASSWORD": "x6gqt0OS5BcAdJuu7RF4U9iEOsAskE36",
+        "HOST": "db.clientes-externos.qualityautomacao.com.br",
+        "PORT": "6432",
+    },
 }
 
 

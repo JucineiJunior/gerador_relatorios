@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      @page {
+        size: A4 {{orientacao}};
+        margin: 20mm;
+      }
+      body {
+        font-family: Arial, sans-serif; 
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      p {
+        text-align: center;
+        font-size: 12px;
+        margin-top: 0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 12px;
+      }
+      th, td {
+        border: 1px solid #333;
+        padding: 6px;
+        text-align: left;
+      }
+      th {
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+  <h1>{{ titulo }}</h1>
+  <p>Gerado em: {{ data_geracao }}</p>
+  {{ tabela_html|safe }}
+  </body>
+</html>
