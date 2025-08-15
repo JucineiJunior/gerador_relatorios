@@ -55,23 +55,29 @@ def cadastrar_usuario(request):
     if request.method == "POST":
         form = CadastroUsuarioForm(request.POST)
         if form.is_valid():
+            # Cria o usuário
             user = form.save(commit=False)
             user.set_password(form.cleaned_data["senha"])
             user.save()
 
-            perfil = Perfil.objects.create(user=user)  # type: ignore
-            perfil.relatorios.set(form.cleaned_data["relatorios"])
+            # Cria o perfil vinculado
+            perfil = Perfil.objects.create( #type: ignore
+                user=user,
+                nome=form.cleaned_data["nome"]
+            )
+            perfil.relatorios.set(form.cleaned_data["relatorios_permitidos"])
+            perfil.setor.set(form.cleaned_data["setores"])
             perfil.save()
 
             registrar_log(perfil, f"Cadastrou o usuário {perfil.user}")
-
             messages.success(request, "Usuário cadastrado com sucesso!")
             return redirect("/admin/?secao=Perfil")
+        else:
+            print(form)
     else:
         form = CadastroUsuarioForm()
 
     return render(request, "usuarios/cadastrar.html", {"form": form})
-
 
 # editar_usuario
 @user_passes_test(is_superuser)
@@ -145,16 +151,16 @@ def alterar_senha_usuario(request, user_id):
 @user_passes_test(is_superuser)
 @login_required
 def deletar_usuario(request, user_id):
-    usuario = Perfil.objects.get(id=user_id)  # type: ignore
+    usuario = User.objects.get(id=user_id)  # type: ignore
 
     if request.method == "POST":
         perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
-        registrar_log(perfil, f"Excluiu o usuário {usuario.username}")
+        registrar_log(perfil, f"Excluiu o usuário {usuario.nome}")
         usuario.delete()
         messages.success(request, "Usuário excluído com sucesso!")
         return redirect("/admin/?secao=Perfil")
 
-    return render(request, "Perfil/deletar.html", {"usuario": usuario})
+    return render(request, "usuarios/deletar.html", {"usuario": usuario})
 
 
 # criar_relatorio
@@ -189,7 +195,7 @@ def adicionar_filtros(request, relatorio_id, quantidade=0):
     FiltroFormSet = modelformset_factory(Filtros, form=FiltroForm, extra=int(quantidade))
 
     if request.method == 'POST':
-        formset = FiltroFormSet(request.POST, queryset=Filtros.objects.none())
+        formset = FiltroFormSet(request.POST, queryset=Filtros.objects.none())  # type: ignore
         if formset.is_valid():
             for form in formset:
                 if form.cleaned_data:
@@ -198,7 +204,7 @@ def adicionar_filtros(request, relatorio_id, quantidade=0):
                     filtro.save()
             return redirect('/admin/?secao=relatorios')
     else:
-        formset = FiltroFormSet(queryset=Filtros.objects.none())
+        formset = FiltroFormSet(queryset=Filtros.objects.none())  # type: ignore
 
     return render(request, 'filtros/adicionar.html', {'relatorio': relatorio, 'formset': formset})
 
