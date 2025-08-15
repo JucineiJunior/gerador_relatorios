@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import Empresa, Filtros, Relatorios, Setores, Perfil
+from .models import Empresa, Filtros, Relatorios, Setores, User
 
 FILTER_TYPES = [
     ("data", "Data"),
@@ -14,40 +14,32 @@ FILTER_TYPES = [
 # cadastrar_usuario
 class CadastroUsuarioForm(forms.ModelForm):
     nome = forms.CharField(widget=forms.TextInput, label="Nome")
-    usuario = forms.CharField(widget=forms.TextInput, label="Usuário")
-    email = forms.EmailField(widget=forms.EmailInput, label="Email")
     senha = forms.CharField(widget=forms.PasswordInput, label="Senha")
-    confirmar_senha = forms.CharField(
-        widget=forms.PasswordInput, label="Confirmar Senha"
-    )
-    is_superuser = forms.BooleanField(label="É administrador?", required=False)
+    confirmar_senha = forms.CharField(widget=forms.PasswordInput, label="Confirmar Senha")
     relatorios_permitidos = forms.ModelMultipleChoiceField(
-        queryset=Relatorios.objects.all(),  # type: ignore
-        required=False,
+        queryset=Relatorios.objects.all(), #type: ignore
+       required=False,
         widget=forms.CheckboxSelectMultiple,
         label="Relatórios Permitidos",
     )
     setores = forms.ModelMultipleChoiceField(
-        queryset=Setores.objects.all(),  # type: ignore
+        queryset=Setores.objects.all(), #type: ignore
         required=False,
         widget=forms.CheckboxSelectMultiple,
         label="Setor permitido",
     )
 
     class Meta:
-        model = Perfil
-        fields = ["user", "is_superuser"]
+        model = User
+        fields = ["username", "email", "is_superuser"]
 
     def clean(self):
         cleaned_data = super().clean()
         senha = cleaned_data.get("senha")
-        confirmar = cleaned_data.get("confirmar_senha")
-
-        if senha and confirmar and senha != confirmar:
-            raise forms.ValidationError("As senhas não coincidem.")
-
+        confirmar_senha = cleaned_data.get("confirmar_senha")
+        if senha != confirmar_senha:
+            self.add_error("confirmar_senha", "As senhas não conferem.")
         return cleaned_data
-
 
 # editar_usuario
 class EditarUsuarioForm(forms.Form):
@@ -73,7 +65,7 @@ class EditarUsuarioForm(forms.Form):
 class AlterarSenhaForm(forms.Form):
     nova_senha = forms.CharField(widget=forms.PasswordInput, label="Nova Senha")
     confirmar = forms.CharField(
-        widget=forms.PasswordInput, label="Confirmar Nova Senha"
+        widget=forms.PasswordInput, label="Confirmar Senha"
     )
 
     def clean(self):

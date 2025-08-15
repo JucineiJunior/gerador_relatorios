@@ -65,19 +65,19 @@
                         <a class="nav-link" aria-current="page" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if secao == 'usuarios' %}active bg-success{% endif %}" href="?secao=usuarios">Usuarios</a>
+                        <a class="nav-link {% if secao == 'usuarios' %}active bg-success{% endif %}" href="/admin?secao=usuarios">Usuarios</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if secao == 'relatorios' %}active bg-success{% endif %}" href="?secao=relatorios">Relatorios</a>
+                        <a class="nav-link {% if secao == 'relatorios' %}active bg-success{% endif %}" href="/admin?secao=relatorios">Relatorios</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if secao == 'setores' %}active bg-success{% endif %}" href="?secao=setores">Setores</a>
+                        <a class="nav-link {% if secao == 'setores' %}active bg-success{% endif %}" href="/admin?secao=setores">Setores</a>
                     </li>
                      <li class="nav-item">
-                        <a class="nav-link {% if secao == 'empresa' %}active bg-danger{% endif %}" href="?secao=empresa">Empresa</a>
+                        <a class="nav-link {% if secao == 'empresa' %}active bg-danger{% endif %}" href="/admin?secao=empresa">Empresa</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if secao == 'logs' %}active bg-danger{% endif %}" href="?secao=logs">Logs</a>
+                        <a class="nav-link {% if secao == 'logs' %}active bg-danger{% endif %}" href="/admin?secao=logs">Logs</a>
                     </li>
                </ul>
                {% if user.is_authenticated %}
