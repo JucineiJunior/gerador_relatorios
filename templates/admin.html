@@ -28,9 +28,9 @@
                     {% endfor %}
                     </td>
                     <td>
-                        <a href="{% url 'editar_usuario' user.id %}" class="btn btn-sm btn-secondary">Editar</a>
-                        <a href="{% url 'alterar_senha_usuario' user.id %}" class="btn btn-sm btn-warning">Senha</a>
-                        <a href="{% url 'deletar_usuario' user.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Confirma exclusão?');">Excluir</a>
+                        <a href="{% url 'editar_usuario' usuario.user.id %}" class="btn btn-sm btn-secondary">Editar</a>
+                        <a href="{% url 'alterar_senha_usuario' usuario.user.id %}" class="btn btn-sm btn-warning">Senha</a>
+                        <a href="{% url 'deletar_usuario' usuario.user.id %}" class="btn btn-sm btn-danger">Excluir</a>
                     </td>
                 </tr>
                 {% empty %}

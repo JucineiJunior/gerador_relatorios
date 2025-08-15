@@ -33,7 +33,6 @@ class Filtros(models.Model):
     def __str__(self):
         return f"{self.exibicao} ({self.variavel})"
 
-
 class Perfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nome = models.CharField(max_length=255, default="vazio")
