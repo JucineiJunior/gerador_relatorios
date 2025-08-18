@@ -1,4 +1,3 @@
-from django.db.models.fields import return_None
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from administrador.models import Relatorios, Filtros, Perfil, Setores, Empresa
@@ -76,14 +75,11 @@ def gerar_relatorio(request, relatorio_id):
 
         resultados = executar_query(relatorio, parametros)
         try:
-            print(resultados["data"])
             for data in resultados.select_dtypes(include="datetime64[ns]").columns:
                 resultados[data] = resultados[data].dt.strftime("%Y-%m-%d")
-            print(resultados["data"])
         except:
             pass
         request.session["relatorio_gerado"] = resultados.to_json(date_format="iso")
-        print(resultados.to_json(date_format="iso"))
         request.session["relatorio_nome"] = relatorio.nome
     context = {
         "relatorio": relatorio,
