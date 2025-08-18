@@ -61,9 +61,8 @@ def cadastrar_usuario(request):
             user.save()
 
             # Cria o perfil vinculado
-            perfil = Perfil.objects.create( #type: ignore
-                user=user,
-                nome=form.cleaned_data["nome"]
+            perfil = Perfil.objects.create(  # type: ignore
+                user=user, nome=form.cleaned_data["nome"]
             )
             perfil.relatorios.set(form.cleaned_data["relatorios_permitidos"])
             perfil.setor.set(form.cleaned_data["setores"])
@@ -71,13 +70,14 @@ def cadastrar_usuario(request):
 
             registrar_log(perfil, f"Cadastrou o usuário {perfil.user}")
             messages.success(request, "Usuário cadastrado com sucesso!")
-            return redirect("/admin/?secao=Perfil")
+            return redirect("/admin/?secao=usuarios")
         else:
             print(form)
     else:
         form = CadastroUsuarioForm()
 
     return render(request, "usuarios/cadastrar.html", {"form": form})
+
 
 # editar_usuario
 @user_passes_test(is_superuser)
@@ -167,34 +167,40 @@ def deletar_usuario(request, user_id):
 @user_passes_test(is_superuser)
 @login_required
 def cadastrar_relatorio(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = RelatorioForm(request.POST)
         if form.is_valid():
             relatorio = form.save()
-            return redirect('confirmar_adicao_filtros', relatorio_id=relatorio.id)
+            return redirect("confirmar_adicao_filtros", relatorio_id=relatorio.id)
     else:
         form = RelatorioForm()
-    return render(request, 'relatorios/cadastrar.html', {'form': form})
+    return render(request, "relatorios/cadastrar.html", {"form": form})
+
 
 def confirmar_adicao_filtros(request, relatorio_id):
-    if request.method == 'POST':
-        deseja_filtros = request.POST.get('deseja_filtros')
+    if request.method == "POST":
+        deseja_filtros = request.POST.get("deseja_filtros")
         try:
-            quantidade = int(request.POST.get('quantidade', 0))
+            quantidade = int(request.POST.get("quantidade", 0))
         except:
             quantidade = 0
-        if deseja_filtros == 'sim' and quantidade > 0:
-            return redirect('adicionar_filtros', relatorio_id=relatorio_id, quantidade=quantidade)
+        if deseja_filtros == "sim" and quantidade > 0:
+            return redirect(
+                "adicionar_filtros", relatorio_id=relatorio_id, quantidade=quantidade
+            )
         else:
-            return redirect('/admin/?secao=relatorios')  # Ou outra página final
+            return redirect("/admin/?secao=relatorios")  # Ou outra página final
 
-    return render(request, 'filtros/confirmar.html', {'relatorio_id': relatorio_id})
+    return render(request, "filtros/confirmar.html", {"relatorio_id": relatorio_id})
+
 
 def adicionar_filtros(request, relatorio_id, quantidade=0):
     relatorio = get_object_or_404(Relatorios, id=relatorio_id)
-    FiltroFormSet = modelformset_factory(Filtros, form=FiltroForm, extra=int(quantidade))
+    FiltroFormSet = modelformset_factory(
+        Filtros, form=FiltroForm, extra=int(quantidade)
+    )
 
-    if request.method == 'POST':
+    if request.method == "POST":
         formset = FiltroFormSet(request.POST, queryset=Filtros.objects.none())  # type: ignore
         if formset.is_valid():
             for form in formset:
@@ -202,11 +208,14 @@ def adicionar_filtros(request, relatorio_id, quantidade=0):
                     filtro = form.save(commit=False)
                     filtro.relatorio = relatorio
                     filtro.save()
-            return redirect('/admin/?secao=relatorios')
+            return redirect("/admin/?secao=relatorios")
     else:
         formset = FiltroFormSet(queryset=Filtros.objects.none())  # type: ignore
 
-    return render(request, 'filtros/adicionar.html', {'relatorio': relatorio, 'formset': formset})
+    return render(
+        request, "filtros/adicionar.html", {"relatorio": relatorio, "formset": formset}
+    )
+
 
 # editar_relatorio
 @user_passes_test(is_superuser)

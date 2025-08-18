@@ -1,62 +1,65 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block content %}
-<div class="layout text-light">
-    <!-- Conteúdo principal -->
-    {% if relatorios %}
-    <div class="container-fluid mt-3">
-        <table class="table table-dark table-bordered border-light table-hover table-sm">
-            <thead>
-                <tr class="table-success">
-                    <th scope="col" class="bg-success text-white">Nome</th>
-                    <th scope="col" class="bg-success text-white">Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for relatorio in relatorios %}
-                <tr class="bg-secondary">
-                    {% if not setor_selecionado or relatorio.setores == setor_selecionado %}
-                    <th scope="row">{{relatorio.nome|capfirst}}</th>
-                    <td>
-                        <a href="?relatorio={{relatorio.id}}" class="btn btn-sm btn-warning">Abrir</a>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% empty %}
-                <tr class="table-danger">
-                    <td colspan="4">Nenhum relatorio encontrado.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% elif relatorio_selecionado %}
-    <div class="container w-50 mx-auto border rounded bg-dark text-light mt-3">
-    <h3 class='my-2 text-center' >Filtros para: {{ relatorio_selecionado.nome }}</h3>
-    <form method="POST" action="{% url 'gerar_relatorio' relatorio_selecionado.id %}">
-        {% csrf_token %}
-        <input type="hidden" name="relatorio_id" value="{{ relatorio_selecionado.id }}">
-        {% for filtro in filtros %}
-            <div class=" mb-2">
-                <label>{{ filtro.exibicao }}</label>
-                {% if filtro.tipo == "texto" %}
-                    <input type="text" name="{{ filtro.exibicao }}" class="form-control ">
-                {% elif filtro.tipo == "numero" %}
-                    <input type="number" name="{{ filtro.exibicao }}" class="form-control ">
-                {% elif filtro.tipo == "data" %}
-                    <input type="date" name="{{ filtro.exibicao }}" class="form-control">
-                {% elif filtro.tipo == "empresa" %}
-                <select name="Empresas">
-                      {% for emp in empresa %}
-                      <option class=" bg-dark text-light" value="{{emp.nome}}">{{emp.nome}}</option>  
-                      {% endfor %}
-                    </select>
-                {% endif %}
+    <div class="layout text-light">
+        <!-- Conteúdo principal -->
+        {% if relatorios %}
+            <div class="container-fluid mt-3">
+                <table class="table table-dark table-bordered border-light table-hover table-sm">
+                    <thead>
+                        <tr class="table-success">
+                            <th scope="col" class="bg-success text-white">Nome</th>
+                            <th scope="col" class="bg-success text-white">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for relatorio in relatorios %}
+                            <tr class="bg-secondary">
+                                {% if not setor_selecionado or relatorio.setores == setor_selecionado %}
+                                    <th scope="row">{{ relatorio.nome|capfirst }}</th>
+                                    <td>
+                                        <a href="?relatorio={{ relatorio.id }}" class="btn btn-sm btn-warning">Abrir</a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr class="table-danger">
+                                <td colspan="4">Nenhum relatorio encontrado.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        {% endfor %}
-        <button type="submit" class="my-3 btn btn-primary">Gerar Relatório</button>
-    </form>
-    </div>
-    {% endif %}
-{% endblock %}
+        {% elif relatorio_selecionado %}
+            <div class="container w-50 mx-auto border rounded bg-dark text-light mt-3">
+                <h3 class='my-2 text-center'>Filtros para: {{ relatorio_selecionado.nome }}</h3>
+                <form method="POST"
+                      action="{% url 'gerar_relatorio' relatorio_selecionado.id %}">
+                    {% csrf_token %}
+                    <input type="hidden"
+                           name="relatorio_id"
+                           value="{{ relatorio_selecionado.id }}">
+                    {% for filtro in filtros %}
+                        <div class=" mb-2">
+                            <label>{{ filtro.exibicao }}</label>
+                            {% if filtro.tipo == "texto" %}
+                                <input type="text" name="{{ filtro.variavel }}" class="form-control ">
+                            {% elif filtro.tipo == "numero" %}
+                                <input type="number" name="{{ filtro.variavel }}" class="form-control ">
+                            {% elif filtro.tipo == "data" %}
+                                <input type="date" name="{{ filtro.variavel }}" class="form-control">
+                            {% elif filtro.tipo == "empresa" %}
+                                <select name="{{ filtro.variavel }}">
+                                    <option class=" bg-dark text-light" value="{{ 0 }}">Todas</option>
+                                    {% for empresa in empresas %}
+                                        <option class=" bg-dark text-light" value="{{ empresa.codigo_interno }}">{{ empresa.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="my-3 btn btn-primary">Gerar Relatório</button>
+                </form>
+            </div>
+        {% endif %}
+    {% endblock %}

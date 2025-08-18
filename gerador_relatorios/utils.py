@@ -1,6 +1,9 @@
 from sqlalchemy import create_engine, text
 from administrador.models import Logs
 import pandas as pd
+from dotenv import load_dotenv
+import os
+
 
 def registrar_log(usuario, acao):
     try:
@@ -17,14 +20,14 @@ def ler_log(log: Logs):
 def executar_query(relatorio, filtros):
     sql = text(relatorio.query)  # considerando que você tem um campo "sql" no modelo
     params = filtros
-    engine = create_engine(
-         "postgresql+psycopg2://rede_trevo_read:***REMOVED***@db.clientes-externos.qualityautomacao.com.br:6432/redetrevo"
-    )
+    load_dotenv()
+    uri = os.getenv("DATABASE_URI")
+    engine = create_engine(uri)  # type: ignore
     with engine.connect() as cursor:
         try:
             sql_data = cursor.execute(sql, params)
         except:
             sql_data = cursor.execute(sql)
 
-        dados = pd.DataFrame(sql_data.fetchall(), columns=sql_data.keys()) # type: ignore
+        dados = pd.DataFrame(sql_data.fetchall(), columns=sql_data.keys())  # type: ignore
         return dados
