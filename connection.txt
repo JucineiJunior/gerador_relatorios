@@ -1,1 +1,0 @@
-postgresql+psycopg2://rede_trevo_read:***REMOVED***@db.clientes-externos.qualityautomacao.com.br:6432/redetrevo
