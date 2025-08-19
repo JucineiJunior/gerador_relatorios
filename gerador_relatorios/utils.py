@@ -31,3 +31,11 @@ def executar_query(relatorio, filtros):
 
         dados = pd.DataFrame(sql_data.fetchall(), columns=sql_data.keys())  # type: ignore
         return dados
+
+def format_numbers(x):
+    try:
+        # tenta converter para float, se der certo formata com ","
+        float(x)
+        return str(x).replace(".", ",")
+    except (ValueError, TypeError):
+        return x

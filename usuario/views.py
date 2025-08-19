@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from administrador.models import Relatorios, Filtros, Perfil, Setores, Empresa
-from gerador_relatorios.utils import executar_query
+from gerador_relatorios.utils import executar_query, format_numbers
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from weasyprint import HTML
@@ -74,6 +74,9 @@ def gerar_relatorio(request, relatorio_id):
                     parametros[filtro["variavel"]] = filtros_request[dado]
 
         resultados = executar_query(relatorio, parametros)
+        
+        resultados = resultados.applymap(format_numbers)
+
         try:
             for data in resultados.select_dtypes(include="datetime64[ns]").columns:
                 resultados[data] = resultados[data].dt.strftime("%Y-%m-%d")
