@@ -2,4 +2,8 @@
 runserver.bat
 db.sqlite3
 run.sh
+run.bat
 gerador_relatorios/.env
+__pycache__/
+usuario/__pycache__/
+administrador/__pycache__/
