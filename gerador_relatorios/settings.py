@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,10 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "&3j=trh#@7gbb=r&0i(y!ckb52=i_pt%npqu%8vngl&5c6(^b9"
+SECRET_KEY = '*&w(t4m70+kb&1ctx!8$9fh2b41+qv+*c=8o!u!+ggf%!uf9nr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -52,6 +51,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# CSRF_COOKIE_SECURE = True
+
+# SESSION_COOKIE_SECURE = True
+
+# SECURE_SSL_REDIRECT = True
 
 ROOT_URLCONF = "gerador_relatorios.urls"
 
