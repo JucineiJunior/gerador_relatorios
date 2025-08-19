@@ -1,9 +1,12 @@
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from administrador.models import Relatorios, Filtros, Perfil, Setores, Empresa
 from gerador_relatorios.utils import executar_query, format_numbers
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from gerador_relatorios import settings
+from .forms import SugestaoForm
 from weasyprint import HTML
 from datetime import datetime
 import pandas as pd
@@ -74,13 +77,13 @@ def gerar_relatorio(request, relatorio_id):
                     parametros[filtro["variavel"]] = filtros_request[dado]
 
         resultados = executar_query(relatorio, parametros)
-        
+
         resultados = resultados.applymap(format_numbers)
 
         try:
             for data in resultados.select_dtypes(include="datetime64[ns]").columns:
                 resultados[data] = resultados[data].dt.strftime("%Y-%m-%d")
-        except:
+        except:  # noqa: E722
             pass
         request.session["relatorio_gerado"] = resultados.to_json(date_format="iso")
         request.session["relatorio_nome"] = relatorio.nome
@@ -175,3 +178,55 @@ def download_manager(request, formato):
         return HttpResponse(status=400)
 
     return response
+
+
+@login_required
+def sugestao_view(request):
+    if request.method == "POST":
+        form = SugestaoForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            perfil = get_object_or_404(Perfil, user=user.id)
+            assunto = form.cleaned_data["assunto"]
+            mensagem = form.cleaned_data["mensagem"]
+
+            corpo = ""
+
+            if int(assunto) == 0:
+                corpo = f"""
+                Sugestão de funcionalidade
+
+                Nome: {perfil.nome or user.username}
+                Email: {user.email}
+
+                Mensagem:
+                {mensagem}
+                """
+                assunto = "Sugestão de melhoria"
+            elif int(assunto) == 1:
+                corpo = f"""
+                Solicitação de relatorio
+
+                Nome: {perfil.nome or user.username}
+                Email: {user.email}
+
+                Mensagem:
+                {mensagem}
+                """
+                assunto = "Solicitação de relatorio"
+            else:
+                corpo = f"{form.is_valid()}\n{mensagem}\n{assunto}"
+                assunto = "Erro de formatação"
+
+            send_mail(
+                subject=f"{assunto}",
+                message=corpo,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=["relatoriosweb@redetrevo.com.br"],
+            )
+
+            return redirect("home_view")
+    else:
+        form = SugestaoForm()
+
+    return render(request, "sugestao.html", {"form": form})

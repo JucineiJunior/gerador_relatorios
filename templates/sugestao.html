@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mx-20 my-2 container border rounded">
+    <h2 class="m-2 text-center">Deixe sua mensagem</h2>
+    <form method="post">
+    {% csrf_token %}
+    <div class="m-2 mt-3">
+        {{ form.as_p }}
+    </div>
+    <button class="m-2 mb-3 border rounded btn btn-success" type="submit">Enviar</button>
+    </form>
+</div>
+{% endblock %}
