@@ -12,6 +12,7 @@ from .forms import (
     RelatorioForm,
     SetorForm,
     EmpresaForm,
+    EditarRelatorioForm,
 )
 from .models import Filtros, Logs, Relatorios, Setores, Perfil, Empresa
 from gerador_relatorios.utils import registrar_log
@@ -102,11 +103,11 @@ def editar_usuario(request, user_id):
 
             messages.success(request, "Usuário atualizado com sucesso!")
             return redirect("/admin/?secao=usuarios")
+        print(form.is_valid())
     else:
         form = EditarUsuarioForm(
             initial={
                 "nome": perfil.nome,
-                "usuario": user.username,
                 "email": user.email,
                 "is_superuser": user.is_superuser,
                 "relatorios": perfil.relatorios.all(),
@@ -122,8 +123,8 @@ def editar_usuario(request, user_id):
 
 
 # alterar_senha
-@user_passes_test(is_superuser)
-@login_required
+@user_passes_test(is_superuser)  # type: ignore
+@login_required  # type: ignore
 def alterar_senha_usuario(request, user_id):
     user = get_object_or_404(User, id=user_id)
     usuario, _ = Perfil.objects.get_or_create(user=user)  # type: ignore
@@ -182,7 +183,7 @@ def confirmar_adicao_filtros(request, relatorio_id):
         deseja_filtros = request.POST.get("deseja_filtros")
         try:
             quantidade = int(request.POST.get("quantidade", 0))
-        except:
+        except TypeError:
             quantidade = 0
         if deseja_filtros == "sim" and quantidade > 0:
             return redirect(
@@ -224,23 +225,30 @@ def editar_relatorios(request, relatorio_id):
     relatorio = get_object_or_404(Relatorios, id=relatorio_id)
 
     if request.method == "POST":
-        relatorio.query = request.POST.get("query", "")
-        setor_id = request.POST.get("setor")
-        if setor_id:
-            relatorio.setor_id = setor_id
-        relatorio.save()
+        form = EditarRelatorioForm(request.POST)
+        if form.is_valid():
+            relatorio.nome = form.cleaned_data["nome"]
+            relatorio.query = form.cleaned_data["query"]
+            relatorio.setores = form.cleaned_data["setor"]
+            relatorio.save()
 
-        perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
-        registrar_log(perfil, f"Alterou o relatório '{relatorio.nome}'")
+            messages.success(request, "Relatorio atualizado com sucesso")
 
-        messages.success(request, "Relatório atualizado com sucesso.")
-        return redirect("/admin/?secao=relatorios")
+            return redirect("/admin/?secao=relatorios")
+        print(form.cleaned_data)
+    else:
+        form = EditarRelatorioForm(
+            initial={
+                "nome": relatorio.nome,
+                "query": relatorio.query,
+                "setor": relatorio.setores,
+            }
+        )
 
-    setores = Setores.objects.all()  # type: ignore
     return render(
         request,
         "relatorios/configurar.html",
-        {"relatorio": relatorio, "setores": setores},
+        {"form": form, "relatorio": relatorio},
     )
 
 

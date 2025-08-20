@@ -1,54 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4 bg-dark text-light">
-    <h2>Configurar Relatório</h2>
-
-    <form id="relatorio-form" method="post" action="{% url 'admin_view' %}">
+<div class="container text-center bg-secondary text-light">
+    <h3 class="m-2">Configurar Relatório: {{relatorio.nome}}</h2>
+    <form method="post" class="form-primary">
         {% csrf_token %}
-
+        {{ form.non_field_errors }}
         <div class="mb-3">
-            <label class="form-label">Nome:</label>
-            <input type="text" class="form-control" value="{{ relatorio.nome }}" readonly>
+          {{ form.nome.label_tag }} {{ form.nome }}
         </div>
-
-        <div class="mb-3">
-            <label class="form-label">Setor:</label>
-            <select name="setor" class="form-select" required>
-                {% for setor in setores %}
-                <option value="{{ setor.id }}" {% if relatorio.setor.id == setor.id %}selected{% endif %}>
-                    {{ setor.nome }}
-                </option>
-                {% endfor %}
-            </select>
+        <div>
+          {{ form.setor.label_tag }} {{ form.setor }}
         </div>
-
         <div class="mb-3">
             <label class="form-label">Query SQL:</label>
             <textarea name="query" class="form-control" rows="6" required>{{ relatorio.query }}</textarea>
         </div>
-
-        <button type="button" class="btn btn-success " data-bs-toggle="modal" data-bs-target="#confirmModal">Salvar Alterações</button>
+        <button type="submit" class="btn btn-success ">Salvar Alterações</button>
         <a href="{% url 'admin_view' %}?secao=relatorios" class="btn btn-secondary ">Cancelar</a>
     </form>
 </div>
-
-<!-- Modal de Confirmação -->
-<div class="modal fade text-light " id="confirmModal" tabindex="-2" aria-labelledby="confirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog text-light bg-dark ">
-    <div class="modal-content text-light bg-dark ">
-      <div class="modal-header text-light bg-dark ">
-        <h5 class="modal-title text-light bg-dark" id="confirmModalLabel">Confirmar Alterações</h5>
-        <button type="button" class="btn-close bg-danger" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body text-light bg-dark">
-        Tem certeza que deseja salvar as alterações deste relatório?
-      </div>
-      <div class="modal-footer text-light bg-dark">
-        <button type="button" class="btn btn-primary mt-2 " onclick="document.getElementById('relatorio-form').submit();">Confirmar</button>
-        <a href="/admin/?secao=relatorios" class="btn btn-secondary mt-2 ">Cancelar</a>
-      </div>
-    </div>
-  </div>
-</div>
-
 {% endblock %}

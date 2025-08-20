@@ -15,15 +15,17 @@ FILTER_TYPES = [
 class CadastroUsuarioForm(forms.ModelForm):
     nome = forms.CharField(widget=forms.TextInput, label="Nome")
     senha = forms.CharField(widget=forms.PasswordInput, label="Senha")
-    confirmar_senha = forms.CharField(widget=forms.PasswordInput, label="Confirmar Senha")
+    confirmar_senha = forms.CharField(
+        widget=forms.PasswordInput, label="Confirmar Senha"
+    )
     relatorios_permitidos = forms.ModelMultipleChoiceField(
-        queryset=Relatorios.objects.all(), #type: ignore
-       required=False,
+        queryset=Relatorios.objects.all(),  # type: ignore
+        required=False,
         widget=forms.CheckboxSelectMultiple,
         label="Relatórios Permitidos",
     )
     setores = forms.ModelMultipleChoiceField(
-        queryset=Setores.objects.all(), #type: ignore
+        queryset=Setores.objects.all(),  # type: ignore
         required=False,
         widget=forms.CheckboxSelectMultiple,
         label="Setor permitido",
@@ -41,10 +43,10 @@ class CadastroUsuarioForm(forms.ModelForm):
             self.add_error("confirmar_senha", "As senhas não conferem.")
         return cleaned_data
 
+
 # editar_usuario
 class EditarUsuarioForm(forms.Form):
     nome = forms.CharField(widget=forms.TextInput, label="Nome")
-    usuario = forms.CharField(widget=forms.TextInput, label="Usuário")
     email = forms.EmailField(widget=forms.EmailInput, label="Email")
     is_superuser = forms.BooleanField(required=False, label="Admin")
     relatorios = forms.ModelMultipleChoiceField(
@@ -64,9 +66,7 @@ class EditarUsuarioForm(forms.Form):
 # alterar_senha
 class AlterarSenhaForm(forms.Form):
     nova_senha = forms.CharField(widget=forms.PasswordInput, label="Nova Senha")
-    confirmar = forms.CharField(
-        widget=forms.PasswordInput, label="Confirmar Senha"
-    )
+    confirmar = forms.CharField(widget=forms.PasswordInput, label="Confirmar Senha")
 
     def clean(self):
         cleaned = super().clean()
@@ -79,12 +79,21 @@ class AlterarSenhaForm(forms.Form):
 class RelatorioForm(forms.ModelForm):
     class Meta:
         model = Relatorios
-        fields = ['nome', 'query', 'setores']
+        fields = ["nome", "query", "setores"]
+
+
+class EditarRelatorioForm(forms.Form):
+    nome = forms.CharField(widget=forms.TextInput, label="Nome")
+    query = forms.CharField(widget=forms.Textarea, label="query")
+    setor = forms.ModelChoiceField(
+        queryset=Setores.objects.all(), required=True, label="setores"
+    )
+
 
 class FiltroForm(forms.ModelForm):
     class Meta:
         model = Filtros
-        fields = ['exibicao', 'variavel', 'tipo']
+        fields = ["exibicao", "variavel", "tipo"]
 
 
 # cadastrar_setor
