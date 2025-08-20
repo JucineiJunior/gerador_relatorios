@@ -72,7 +72,7 @@ def gerar_relatorio(request, relatorio_id):
             for dado in filtros_request:
                 if filtro["exibicao"] == dado or filtro["variavel"] == dado:
                     parametros[filtro["variavel"]] = filtros_request[dado]
-
+            
         resultados = executar_query(relatorio, parametros)
         try:
             for data in resultados.select_dtypes(include="datetime64[ns]").columns:
@@ -81,10 +81,12 @@ def gerar_relatorio(request, relatorio_id):
             pass
         request.session["relatorio_gerado"] = resultados.to_json(date_format="iso")
         request.session["relatorio_nome"] = relatorio.nome
+        request.session["filtros"] = filtros
+        request.session["filtros_gerados"] = parametros
     context = {
         "relatorio": relatorio,
         "filtros": filtros,  # Envia os filtros usados de volta para o template
-        "resultados": resultados.to_html(index=False, classes="table table-striped table-dark text-light table-bordered border-white"),  # type: ignore
+        "resultados": resultados.to_html(index=False, classes="table table-striped table-dark text-light table-bordered border-white rounded").replace("None","").replace("NaN",""),  # type: ignore
     }
 
     return render(request, "relatorios/gerar.html", context)
@@ -93,6 +95,15 @@ def gerar_relatorio(request, relatorio_id):
 def download_manager(request, formato):
     df_json = request.session.get("relatorio_gerado")
     nome = request.session.get("relatorio_nome")
+    filtros = request.session.get("filtros")
+    filtros_atuais = request.session.get("filtros_gerados")
+    for x, y in filtros_atuais.items():
+        try:
+            y = datetime.strptime(y, '%Y-%m-%d')
+            print(y)
+        except:
+            print(y)
+    
     if not df_json:
         return HttpResponse(status=404)
 
@@ -135,7 +146,9 @@ def download_manager(request, formato):
             {
                 "titulo": f"{nome.capitalize()}",
                 "data_geracao": datetime.now().strftime("%D/%M/%Y %H:%M"),
-                "tabela_html": tabela_html,
+                "filtros": filtros,
+                "parametros": filtros_atuais,
+                "tabela_html": tabela_html.replace("None", "").replace("NaN", ""),
                 "orientacao": "portrait",
             },
         )
@@ -156,7 +169,9 @@ def download_manager(request, formato):
             {
                 "titulo": f"{nome.capitalize()}",
                 "data_geracao": datetime.now().strftime("%D/%M/%Y %H:%M"),
-                "tabela_html": tabela_html,
+                "filtros": filtros,
+                "parametros": filtros_atuais,
+                "tabela_html": tabela_html.replace("None", "").replace("NaN", ""),
                 "orientacao": "landscape",
             },
         )

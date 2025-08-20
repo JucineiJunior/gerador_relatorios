@@ -24,10 +24,6 @@ def executar_query(relatorio, filtros):
     uri = os.getenv("DATABASE_URI")
     engine = create_engine(uri)  # type: ignore
     with engine.connect() as cursor:
-        try:
-            sql_data = cursor.execute(sql, params)
-        except:
-            sql_data = cursor.execute(sql)
-
+        sql_data = cursor.execute(sql, params)
         dados = pd.DataFrame(sql_data.fetchall(), columns=sql_data.keys())  # type: ignore
         return dados

@@ -1,5 +1,5 @@
 django
-weazyprint
+weasyprint
 pandas
 sqlalchemy
 dotenv

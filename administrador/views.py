@@ -155,7 +155,7 @@ def deletar_usuario(request, user_id):
 
     if request.method == "POST":
         perfil = Perfil.objects.get(id=request.user.id)  # type: ignore
-        registrar_log(perfil, f"Excluiu o usuário {usuario.nome}")
+        registrar_log(perfil, f"Excluiu o usuário {usuario.username}")
         usuario.delete()
         messages.success(request, "Usuário excluído com sucesso!")
         return redirect("/admin/?secao=Perfil")

@@ -11,18 +11,18 @@
       <form method="post">
         {% csrf_token %}
         <div class="border rounded bg-light text-dark">
-          <div>
+          <div class="m-2">
             {{form.username.label_tag}} <br>
             {{form.username}}
           </div>
-          <div>
+          <div class="m-2">
             {{form.password.label_tag}} <br>
             {{form.password}}
           </div>
-          <label>
+          <label class="m-2">
             <input type="checkbox" name="remember_me"> Manter conectado
           </label>
-          <button type="submit" class="btn btn-success">Entrar</button>
+          <button type="submit" class="btn btn-success m-2">Entrar</button>
         </div>
       </form>  
     </div>
