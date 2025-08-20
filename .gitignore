@@ -5,3 +5,4 @@ run.sh
 run.bat
 gerador_relatorios/.env
 **/__pycache__/**
+gerador_relatorios/settings.py
