@@ -1,15 +1,16 @@
-from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from administrador.models import Relatorios, Filtros, Perfil, Setores, Empresa
-from gerador_relatorios.utils import executar_query, format_numbers
-from django.contrib.auth.decorators import login_required
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from gerador_relatorios import settings
-from .forms import SugestaoForm
-from weasyprint import HTML
 from datetime import datetime
+from smtplib import SMTP
+
 import pandas as pd
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from weasyprint import HTML
+
+from administrador.models import Empresa, Filtros, Perfil, Relatorios, Setores
+from gerador_relatorios.utils import executar_query, format_numbers
+from usuario.forms import SugestaoForm
 
 # Create your views here.
 
@@ -78,7 +79,9 @@ def gerar_relatorio(request, relatorio_id):
 
         resultados = executar_query(relatorio, parametros)
 
-        resultados = resultados.applymap(format_numbers)
+        resultados = resultados.applymap(
+            format_numbers
+        )  # pyright: ignore[reportCallIssue]
 
         try:
             for data in resultados.select_dtypes(include="datetime64[ns]").columns:
@@ -190,40 +193,22 @@ def sugestao_view(request):
             assunto = form.cleaned_data["assunto"]
             mensagem = form.cleaned_data["mensagem"]
 
-            corpo = ""
+            corpo = f"""
+            {mensagem}
 
-            if int(assunto) == 0:
-                corpo = f"""
-                Sugestão de funcionalidade
+            Nome: {perfil.nome or user.username} 
+            Email: {user.email} 
+            Assunto: {assunto}
 
-                Nome: {perfil.nome or user.username}
-                Email: {user.email}
-
-                Mensagem:
-                {mensagem}
-                """
-                assunto = "Sugestão de melhoria"
-            elif int(assunto) == 1:
-                corpo = f"""
-                Solicitação de relatorio
-
-                Nome: {perfil.nome or user.username}
-                Email: {user.email}
-
-                Mensagem:
-                {mensagem}
-                """
-                assunto = "Solicitação de relatorio"
-            else:
-                corpo = f"{form.is_valid()}\n{mensagem}\n{assunto}"
-                assunto = "Erro de formatação"
-
-            send_mail(
-                subject=f"{assunto}",
-                message=corpo,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=["relatoriosweb@redetrevo.com.br"],
+            """
+            server = SMTP("smtp-relay.gmail.com", 587)
+            server.starttls()
+            server.sendmail(
+                user.email,
+                "jucinei6+o5jgzoi86c8ydffpexpk@boards.trello.com",
+                corpo,
             )
+            server.quit()
 
             return redirect("home_view")
     else:

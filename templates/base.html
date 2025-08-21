@@ -39,6 +39,9 @@
                           {% endfor %}
                       </ul>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href='{% url "contato" %}'>Contato</a>
+                    </li>
                 </ul>
               {% if user.is_authenticated %}
               <form action="{% url 'logout' %}" method="post">

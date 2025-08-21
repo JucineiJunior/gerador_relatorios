@@ -1,8 +1,10 @@
-from sqlalchemy import create_engine, text
-from administrador.models import Logs
+import os
+
 import pandas as pd
 from dotenv import load_dotenv
-import os
+from sqlalchemy import create_engine, text
+
+from administrador.models import Logs
 
 
 def registrar_log(usuario, acao):
@@ -26,11 +28,12 @@ def executar_query(relatorio, filtros):
     with engine.connect() as cursor:
         try:
             sql_data = cursor.execute(sql, params)
-        except:
+        except:  # noqa: E722
             sql_data = cursor.execute(sql)
 
         dados = pd.DataFrame(sql_data.fetchall(), columns=sql_data.keys())  # type: ignore
         return dados
+
 
 def format_numbers(x):
     try:
