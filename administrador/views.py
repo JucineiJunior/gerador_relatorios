@@ -211,10 +211,6 @@ def adicionar_filtros(request, relatorio_id, quantidade=0):
                     filtro = form.save(commit=False)
                     filtro.relatorio = relatorio
                     filtro.save()
-            if type(formset) is list:
-                formset = formset
-            else:
-                formset = [formset]
             return redirect(
                 "configurar_formatacao",
                 relatorio.id,  # pyright: ignore[reportAttributeAccessIssue]
@@ -237,18 +233,23 @@ def configurar_formatacao(request, relatorio_id):
     if request.method == "POST":
         formset = ColunaFormSet(request.POST, queryset=Colunas.objects.none())
         if formset.is_valid():
-            for form in formset:
+            for col, form in zip(colunas, formset):
                 if form.cleaned_data:
-                    coluna = form.save(commit=True)
+                    coluna = form.save(commit=False)
+                    coluna.coluna = col
                     coluna.relatorio = relatorio
                     coluna.save()
+            return redirect("/admin/?secao=relatorios")
+        else:
+            print(formset)
+            formset = ColunaFormSet(queryset=Colunas.objects.none())
     else:
         formset = ColunaFormSet(queryset=Colunas.objects.none())
 
     return render(
         request,
         "relatorios/formatacao.html",
-        {"formset": zip(colunas, formset), "relatorio": relatorio},
+        {"formset": formset, "relatorio": relatorio, "colunas": colunas},
     )
 
 

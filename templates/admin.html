@@ -1,160 +1,170 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 {% csrf_token %}
 {% block content %}
     {% if secao == "usuarios" %}
-    <div class="container-fluid">
-        <table class="table table-bordered table-hover table-striped table-sm table-dark container-fluid">
-            <thead>
-                <tr class="table-primary">
-                    <th>Nome</th>
-                    <th>Usuário</th>
-                    <th>Email</th>
-                    <th>Setores</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr class="table-secondary">
-                    <td>{{usuario.nome}}</td>
-                    <td>{{ usuario.user.username }}</td>
-                    <td>{{ usuario.user.email }}</td>
-                    <td>
-                    {% for setor in usuario.setor.all %}
-                        <span class="badge bg-primary">{{ setor.nome }}</span>
+        <div class="container-fluid">
+            <table class="table table-bordered table-hover table-striped table-sm table-dark container-fluid">
+                <thead>
+                    <tr class="table-primary">
+                        <th>Nome</th>
+                        <th>Usuário</th>
+                        <th>Email</th>
+                        <th>Setores</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                        <tr class="table-secondary">
+                            <td>{{ usuario.nome }}</td>
+                            <td>{{ usuario.user.username }}</td>
+                            <td>{{ usuario.user.email }}</td>
+                            <td>
+                                {% for setor in usuario.setor.all %}
+                                    <span class="badge bg-primary">{{ setor.nome }}</span>
+                                {% empty %}
+                                    <span class="text-muted">Sem setor</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="{% url 'editar_usuario' usuario.user.id %}"
+                                   class="btn btn-sm btn-secondary">Editar</a>
+                                <a href="{% url 'alterar_senha_usuario' usuario.user.id %}"
+                                   class="btn btn-sm btn-warning">Senha</a>
+                                <a href="{% url 'deletar_usuario' usuario.user.id %}"
+                                   class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
                     {% empty %}
-                        <span class="text-muted">Sem setor</span>
+                        <tr class="table-danger">
+                            <td colspan="4">Nenhum usuário encontrado.</td>
+                        </tr>
                     {% endfor %}
-                    </td>
-                    <td>
-                        <a href="{% url 'editar_usuario' usuario.user.id %}" class="btn btn-sm btn-secondary">Editar</a>
-                        <a href="{% url 'alterar_senha_usuario' usuario.user.id %}" class="btn btn-sm btn-warning">Senha</a>
-                        <a href="{% url 'deletar_usuario' usuario.user.id %}" class="btn btn-sm btn-danger">Excluir</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr class="table-danger">
-                    <td colspan="4">Nenhum usuário encontrado.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="mb-3">
-            <a href="{% url 'cadastrar_usuario' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
+                </tbody>
+            </table>
+            <div class="mb-3">
+                <a href="{% url 'cadastrar_usuario' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
+            </div>
         </div>
-    </div>
     {% elif secao == "relatorios" %}
-    <div class="container-fluid">
-        <table class="table table-bordered table-hover table-striped table-sm table-dark container-fluid">
-            <thead>
-                <tr class="table-primary">
-                <th scope="col">Nome</th>
-                <th scope="col">Setor</th>
-                <th scope="col">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for relatorio in relatorios %}
-                <tr class="table-secondary">
-                    <th scope="row">{{relatorio.nome}}</th>
-                    <td scope="row">{{relatorio.setor.nome}}</td>
-                    <td>
-                        <a href="{% url 'editar_relatorios' relatorio.id %}" class="btn btn-sm btn-secondary">Editar</a>
-                        <a href="{% url 'excluir_relatorio' relatorio.id %}" class="btn btn-sm btn-danger">Excluir</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr class="table-danger">
-                    <td colspan="4">Nenhum relatório encontrado.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="mb-3">
-            <a href="{% url 'cadastrar_relatorio' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
-            
+        <div class="container-fluid">
+            <table class="table table-bordered table-hover table-striped table-sm table-dark container-fluid">
+                <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Nome</th>
+                        <th scope="col">Setor</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for relatorio in relatorios %}
+                        <tr class="table-secondary">
+                            <th scope="row">{{ relatorio.nome }}</th>
+                            <td scope="row">{{ relatorio.setores.nome }}</td>
+                            <td>
+                                <a href="{% url 'editar_relatorios' relatorio.id %}"
+                                   class="btn btn-sm btn-secondary">Editar</a>
+                                <a href="{% url 'excluir_relatorio' relatorio.id %}"
+                                   class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="table-danger">
+                            <td colspan="4">Nenhum relatório encontrado.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="mb-3">
+                <a href="{% url 'cadastrar_relatorio' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
+            </div>
         </div>
-    </div>
     {% elif secao == "setores" %}
-    <div class="container-fluid">
-        <table class="table table-bordered table-hover table-striped table-sm table-dark">
-            <thead>
-                <tr class="table-primary">
-                    <th scope="col">Nome</th>
-                    <th scope="col">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for setor in setores %}
-                <tr class="table-secondary">
-                    <th scope="row">{{setor.nome}}</th>
-                    <td>
-                        <a href="{% url 'excluir_setor' setor.id %}" class="btn btn-sm btn-danger">Excluir</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr class="table-danger">
-                    <td colspan="4">Nenhum setor encontrado.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="mb-3">
-            <a href="{% url 'criar_setor' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
+        <div class="container-fluid">
+            <table class="table table-bordered table-hover table-striped table-sm table-dark">
+                <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Nome</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for setor in setores %}
+                        <tr class="table-secondary">
+                            <th scope="row">{{ setor.nome }}</th>
+                            <td>
+                                <a href="{% url 'excluir_setor' setor.id %}"
+                                   class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="table-danger">
+                            <td colspan="4">Nenhum setor encontrado.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="mb-3">
+                <a href="{% url 'criar_setor' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
+            </div>
         </div>
-    </div>
     {% elif secao == "logs" %}
-    <div class="container mt-4">
-        <h2>Logs de Atividades</h2>
-
-        <form method="get" class="mb-3">
-            <input type="text" name="usuario" placeholder="Usuário" value="{{ request.GET.usuario }}">
-            <input type="text" name="acao" placeholder="Ação" value="{{ request.GET.acao }}">
-            <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
-        </form>
-
-        <ul class="list-group">
-            {% for log in logs %}
-            <li class="list-group-item">
-                <strong>{{ log.responsavel.user.username }}</strong> - {{ log.acao }} <br>
-                <small class="text-muted">{{ log.data }}</small>
-            </li>
-            {% empty %}
-            <li class="list-group-item">Nenhuma atividade registrada.</li>
-            {% endfor %}
-        </ul>
-    </div>
+        <div class="container mt-4">
+            <h2>Logs de Atividades</h2>
+            <form method="get" class="mb-3">
+                <input type="text"
+                       name="usuario"
+                       placeholder="Usuário"
+                       value="{{ request.GET.usuario }}">
+                <input type="text"
+                       name="acao"
+                       placeholder="Ação"
+                       value="{{ request.GET.acao }}">
+                <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+            </form>
+            <ul class="list-group">
+                {% for log in logs %}
+                    <li class="list-group-item">
+                        <strong>{{ log.responsavel.user.username }}</strong> - {{ log.acao }}
+                        <br>
+                        <small class="text-muted">{{ log.data }}</small>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">Nenhuma atividade registrada.</li>
+                {% endfor %}
+            </ul>
+        </div>
     {% elif secao == "empresa" %}
-    <div class="container-fluid">
-      <table class="table table-bordered table-hover table-striped table-sm table-dark">
-        <thead>
-          <tr class="table-primary">
-            <th scope="col">Nome</th>
-            <th scope="col">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for empresa_only in empresa %}
-          <tr class="table-secondary">
-            <th scope="row">{{empresa_only.nome}}</th>
-              <td>
-                <a href="{% url 'excluir_empresa' empresa_only.id %}" class="btn btn-sm btn-danger">Excluir</a>
-              </td>
-          </tr>
-          {% empty %}
-            <tr class="table-danger">
-              <td colspan="4">Nenhuma empresa encontrado.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <div class="mb-3">
-        <a href="{% url 'criar_empresa' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
-      </div>
-    </div>
+        <div class="container-fluid">
+            <table class="table table-bordered table-hover table-striped table-sm table-dark">
+                <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Nome</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empresa_only in empresa %}
+                        <tr class="table-secondary">
+                            <th scope="row">{{ empresa_only.nome }}</th>
+                            <td>
+                                <a href="{% url 'excluir_empresa' empresa_only.id %}"
+                                   class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr class="table-danger">
+                            <td colspan="4">Nenhuma empresa encontrado.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="mb-3">
+                <a href="{% url 'criar_empresa' %}" class="btn btn-success btn-sm">Cadastrar Novo</a>
+            </div>
+        </div>
     {% else %}
-    <p class="text-light">Selecione uma função</p>
+        <p class="text-light">Selecione uma função</p>
     {% endif %}
-{% endblock %}
-
+{% endblock content %}

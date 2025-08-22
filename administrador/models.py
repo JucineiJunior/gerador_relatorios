@@ -67,7 +67,7 @@ class Empresa(models.Model):
 
 class Colunas(models.Model):
     coluna = models.CharField()
-    relatorio_id = models.ForeignKey(Relatorios, on_delete=models.CASCADE, null=False)
+    relatorio = models.ForeignKey(Relatorios, on_delete=models.CASCADE, null=False)
     ordem = models.IntegerField(null=True)
     largura = models.IntegerField(null=True)
     agrupamento = models.BooleanField(default=False)
@@ -79,7 +79,7 @@ class Colunas(models.Model):
             ("con", "Contabilizar"),
             ("max", "Maximo"),
             ("min", "Minimo"),
-            (None, "Nenhum"),
+            ("nao", "Nenhum"),
         ),
         default=None,
     )

@@ -60,7 +60,7 @@ urlpatterns = [
         name="adicionar_filtros",
     ),
     path(
-        "relatorios/<int:relatorio_id>/colunas/",
+        "relatorios/colunas/<int:relatorio_id>/",
         configurar_formatacao,
         name="configurar_formatacao",
     ),
