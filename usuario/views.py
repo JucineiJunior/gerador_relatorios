@@ -76,7 +76,7 @@ def gerar_relatorio(request, relatorio_id):
             for dado in filtros_request:
                 if filtro["exibicao"] == dado or filtro["variavel"] == dado:
                     parametros[filtro["variavel"]] = filtros_request[dado]
-            
+
         resultados = executar_query(relatorio, parametros)
 
         resultados = resultados.applymap(
@@ -95,7 +95,7 @@ def gerar_relatorio(request, relatorio_id):
     context = {
         "relatorio": relatorio,
         "filtros": filtros,  # Envia os filtros usados de volta para o template
-        "resultados": resultados.to_html(index=False, classes="table table-striped table-dark text-light table-bordered border-white rounded").replace("None","").replace("NaN",""),  # type: ignore
+        "resultados": resultados.to_html(index=False, classes="table table-striped table-dark text-light table-bordered border-white rounded").replace("None", "").replace("NaN", ""),  # type: ignore
     }
 
     return render(request, "relatorios/gerar.html", context)
@@ -108,11 +108,11 @@ def download_manager(request, formato):
     filtros_atuais = request.session.get("filtros_gerados")
     for x, y in filtros_atuais.items():
         try:
-            y = datetime.strptime(y, '%Y-%m-%d')
+            y = datetime.strptime(y, "%Y-%m-%d")
             print(y)
-        except:
+        except:  # noqa: E722
             print(y)
-    
+
     if not df_json:
         return HttpResponse(status=404)
 

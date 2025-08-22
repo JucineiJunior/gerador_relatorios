@@ -24,14 +24,17 @@ def executar_query(relatorio, filtros):
     params = filtros
     load_dotenv()
     uri = os.getenv("DATABASE_URI")
-    engine = create_engine(uri)  # type: ignore
-    with engine.connect() as cursor:
+    engine = create_engine(str(uri))
+    with engine.connect() as conn:
         try:
-            sql_data = cursor.execute(sql, params)
+            sql_data = conn.execute(sql, params)
         except:  # noqa: E722
-            sql_data = cursor.execute(sql)
+            sql_data = conn.execute(sql)
 
         dados = pd.DataFrame(sql_data.fetchall(), columns=sql_data.keys())  # type: ignore
+
+        print(sql_data.keys())
+
         return dados
 
 
@@ -42,3 +45,29 @@ def format_numbers(x):
         return str(x).replace(".", ",")
     except (ValueError, TypeError):
         return x
+
+
+def verificar_colunas(query: str, filtros):
+    load_dotenv()
+    uri = os.getenv("DATABASE_URI")
+
+    engine = create_engine(str(uri))
+
+    try:
+        for filtro in filtros:
+            if filtro["tipo"] == "data":
+                query = query.replace(f":{filtro.variavel}", "2025-06-01")
+            elif filtro["tipo"] == "empresa":
+                query = query.replace(f":{filtro.variavel}", "46455")
+            elif filtro["tipo"] == "numero":
+                query = query.replace(f":{filtro.variavel}", "0")
+            elif filtro["tipo"] == "texto":
+                query = query.replace(f":{filtro.variavel}", "")
+
+    except:
+        print(filtros)
+
+    with engine.connect() as conn:
+        colunas = conn.execute(text(query))
+
+    return colunas.keys()

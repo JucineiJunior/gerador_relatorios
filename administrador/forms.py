@@ -1,6 +1,7 @@
 # forms.py
 from django import forms
-from .models import Empresa, Filtros, Relatorios, Setores, User
+
+from administrador.models import Colunas, Empresa, Filtros, Relatorios, Setores, User
 
 FILTER_TYPES = [
     ("data", "Data"),
@@ -94,6 +95,12 @@ class FiltroForm(forms.ModelForm):
     class Meta:
         model = Filtros
         fields = ["exibicao", "variavel", "tipo"]
+
+
+class ColunasForm(forms.ModelForm):
+    class Meta:
+        model = Colunas
+        fields = ["coluna", "relatorio_id"]
 
 
 # cadastrar_setor

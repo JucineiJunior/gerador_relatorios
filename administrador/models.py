@@ -9,6 +9,7 @@ class Setores(models.Model):
     def __str__(self):
         return self.nome
 
+
 class Relatorios(models.Model):
     nome = models.CharField(max_length=100)
     query = models.TextField()
@@ -17,21 +18,25 @@ class Relatorios(models.Model):
     def __str__(self):
         return self.nome
 
+
 class Filtros(models.Model):
     TIPO_CHOICES = [
-        ('texto', 'Texto'),
-        ('numero', 'Número'),
-        ('data', 'Data'),
-        ('empresa', 'Empresa'),
+        ("texto", "Texto"),
+        ("numero", "Número"),
+        ("data", "Data"),
+        ("empresa", "Empresa"),
     ]
 
-    relatorio = models.ForeignKey(Relatorios, on_delete=models.CASCADE, related_name='filtros')
+    relatorio = models.ForeignKey(
+        Relatorios, on_delete=models.CASCADE, related_name="filtros"
+    )
     exibicao = models.CharField(max_length=100)
     variavel = models.CharField(max_length=100)
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
 
     def __str__(self):
         return f"{self.exibicao} ({self.variavel})"
+
 
 class Perfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -58,3 +63,26 @@ class Empresa(models.Model):
 
     def __str__(self):  # type: ignore
         return f"{self.nome}"
+
+
+class Colunas(models.Model):
+    coluna = models.CharField()
+    relatorio_id = models.ForeignKey(Relatorios, on_delete=models.CASCADE, null=False)
+    ordem = models.IntegerField(null=True)
+    largura = models.IntegerField(null=True)
+    agrupamento = models.BooleanField(default=False)
+    totalizar = models.CharField(
+        max_length=3,
+        choices=(
+            ("sum", "Somar"),
+            ("mid", "Média"),
+            ("con", "Contabilizar"),
+            ("max", "Maximo"),
+            ("min", "Minimo"),
+            (None, "Nenhum"),
+        ),
+        default=None,
+    )
+
+    def __str__(self):
+        return f"{self.coluna}"

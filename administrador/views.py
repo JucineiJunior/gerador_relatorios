@@ -15,7 +15,7 @@ from .forms import (
     EditarRelatorioForm,
 )
 from .models import Filtros, Logs, Relatorios, Setores, Perfil, Empresa
-from gerador_relatorios.utils import registrar_log
+from gerador_relatorios.utils import registrar_log, verificar_colunas
 
 
 def is_superuser(user):
@@ -172,6 +172,7 @@ def cadastrar_relatorio(request):
         form = RelatorioForm(request.POST)
         if form.is_valid():
             relatorio = form.save()
+
             return redirect("confirmar_adicao_filtros", relatorio_id=relatorio.id)
     else:
         form = RelatorioForm()
@@ -209,6 +210,7 @@ def adicionar_filtros(request, relatorio_id, quantidade=0):
                     filtro = form.save(commit=False)
                     filtro.relatorio = relatorio
                     filtro.save()
+            verificar_colunas(relatorio.query, formset)
             return redirect("/admin/?secao=relatorios")
     else:
         formset = FiltroFormSet(queryset=Filtros.objects.none())  # type: ignore
