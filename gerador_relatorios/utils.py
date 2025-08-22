@@ -1,3 +1,5 @@
+from django.forms.models import model_to_dict
+
 import os
 
 import pandas as pd
@@ -53,21 +55,28 @@ def verificar_colunas(query: str, filtros):
 
     engine = create_engine(str(uri))
 
-    try:
-        for filtro in filtros:
-            if filtro["tipo"] == "data":
-                query = query.replace(f":{filtro.variavel}", "2025-06-01")
-            elif filtro["tipo"] == "empresa":
-                query = query.replace(f":{filtro.variavel}", "46455")
-            elif filtro["tipo"] == "numero":
-                query = query.replace(f":{filtro.variavel}", "0")
-            elif filtro["tipo"] == "texto":
-                query = query.replace(f":{filtro.variavel}", "")
+    parametros = {}
 
-    except:
-        print(filtros)
+    try:
+        for filtro in filtros.values():
+            if filtro["tipo"] == "data":
+                parametros[filtro["variavel"]] = "2000-01-01"
+            elif filtro["tipo"] == "empresa":
+                parametros[filtro["variavel"]] = "0"
+            elif filtro["tipo"] == "numero":
+                parametros[filtro["variavel"]] = "0"
+            elif filtro["tipo"] == "texto":
+                parametros[filtro["variavel"]] = ""
+
+    except:  # noqa: E722
+        print(model_to_dict(filtros))
 
     with engine.connect() as conn:
-        colunas = conn.execute(text(query))
+        colunas = conn.execute(statement=text(query), parameters=parametros)
 
-    return colunas.keys()
+    colunas_list = []
+
+    for coluna in colunas.keys():
+        colunas_list.append(coluna)
+
+    return colunas_list

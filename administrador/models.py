@@ -83,6 +83,7 @@ class Colunas(models.Model):
         ),
         default=None,
     )
+    visibilidade = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.coluna}"

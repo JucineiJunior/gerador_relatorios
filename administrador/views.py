@@ -13,8 +13,9 @@ from .forms import (
     SetorForm,
     EmpresaForm,
     EditarRelatorioForm,
+    ColunasForm,
 )
-from .models import Filtros, Logs, Relatorios, Setores, Perfil, Empresa
+from .models import Filtros, Logs, Relatorios, Setores, Perfil, Empresa, Colunas
 from gerador_relatorios.utils import registrar_log, verificar_colunas
 
 
@@ -210,13 +211,44 @@ def adicionar_filtros(request, relatorio_id, quantidade=0):
                     filtro = form.save(commit=False)
                     filtro.relatorio = relatorio
                     filtro.save()
-            verificar_colunas(relatorio.query, formset)
-            return redirect("/admin/?secao=relatorios")
+            if type(formset) is list:
+                formset = formset
+            else:
+                formset = [formset]
+            return redirect(
+                "configurar_formatacao",
+                relatorio.id,  # pyright: ignore[reportAttributeAccessIssue]
+            )
     else:
         formset = FiltroFormSet(queryset=Filtros.objects.none())  # type: ignore
 
     return render(
         request, "filtros/adicionar.html", {"relatorio": relatorio, "formset": formset}
+    )
+
+
+def configurar_formatacao(request, relatorio_id):
+    relatorio = get_object_or_404(Relatorios, id=relatorio_id)
+    filtros = Filtros.objects.filter(relatorio_id=relatorio.id)  # type: ignore
+    colunas = verificar_colunas(relatorio.query, filtros)
+
+    ColunaFormSet = modelformset_factory(Colunas, form=ColunasForm, extra=len(colunas))
+
+    if request.method == "POST":
+        formset = ColunaFormSet(request.POST, queryset=Colunas.objects.none())
+        if formset.is_valid():
+            for form in formset:
+                if form.cleaned_data:
+                    coluna = form.save(commit=True)
+                    coluna.relatorio = relatorio
+                    coluna.save()
+    else:
+        formset = ColunaFormSet(queryset=Colunas.objects.none())
+
+    return render(
+        request,
+        "relatorios/formatacao.html",
+        {"formset": zip(colunas, formset), "relatorio": relatorio},
     )
 
 

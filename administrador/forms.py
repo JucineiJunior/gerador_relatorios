@@ -100,7 +100,21 @@ class FiltroForm(forms.ModelForm):
 class ColunasForm(forms.ModelForm):
     class Meta:
         model = Colunas
-        fields = ["coluna", "relatorio_id"]
+        fields = ["ordem", "largura", "totalizar", "agrupamento", "visibilidade"]
+        widgets = {
+            "ordem": forms.NumberInput(
+                attrs={
+                    "class": "form-input rounded m-2",
+                    "placeholder": "Numero",
+                }
+            ),
+            "largura": forms.NumberInput(
+                attrs={
+                    "class": "form-input rounded m-2 mb-4",
+                    "placeholder": "Pixeis",
+                }
+            ),
+        }
 
 
 # cadastrar_setor
