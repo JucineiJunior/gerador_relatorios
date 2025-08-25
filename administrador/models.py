@@ -74,12 +74,12 @@ class Colunas(models.Model):
     totalizar = models.CharField(
         max_length=3,
         choices=(
+            ("nao", "Nenhum"),
             ("sum", "Somar"),
             ("mid", "Média"),
             ("con", "Contabilizar"),
             ("max", "Maximo"),
             ("min", "Minimo"),
-            ("nao", "Nenhum"),
         ),
         default=None,
     )

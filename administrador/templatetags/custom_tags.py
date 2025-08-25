@@ -10,3 +10,8 @@ def index(lista, i):
         return lista[int(i)]
     except (IndexError, ValueError, TypeError):
         return ""
+
+
+@register.filter
+def get_item(d, key):
+    return d.get(key)

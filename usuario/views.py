@@ -1,5 +1,6 @@
 from datetime import datetime
 from smtplib import SMTP
+from itertools import groupby
 
 import pandas as pd
 from django.contrib.auth.decorators import login_required
@@ -8,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from weasyprint import HTML
 
-from administrador.models import Empresa, Filtros, Perfil, Relatorios, Setores
+from administrador.models import Empresa, Filtros, Perfil, Relatorios, Setores, Colunas
 from gerador_relatorios.utils import executar_query, format_numbers
 from usuario.forms import SugestaoForm
 
@@ -62,6 +63,7 @@ def home_view(request):
 def gerar_relatorio(request, relatorio_id):
     relatorio = get_object_or_404(Relatorios, id=relatorio_id)
     filtros = Filtros.objects.filter(relatorio=relatorio_id)  # type: ignore
+
     filtros = list(filtros.values())
 
     # Inicializa variáveis
@@ -92,6 +94,7 @@ def gerar_relatorio(request, relatorio_id):
         request.session["relatorio_nome"] = relatorio.nome
         request.session["filtros"] = filtros
         request.session["filtros_gerados"] = parametros
+        request.session["relatorio_id"] = relatorio.id
     context = {
         "relatorio": relatorio,
         "filtros": filtros,  # Envia os filtros usados de volta para o template
@@ -106,12 +109,12 @@ def download_manager(request, formato):
     nome = request.session.get("relatorio_nome")
     filtros = request.session.get("filtros")
     filtros_atuais = request.session.get("filtros_gerados")
-    for x, y in filtros_atuais.items():
-        try:
-            y = datetime.strptime(y, "%Y-%m-%d")
-            print(y)
-        except:  # noqa: E722
-            print(y)
+
+    relatorio_id = request.session.get("relatorio_id")
+    colunas = Colunas.objects.filter(relatorio=relatorio_id).order_by("ordem")
+
+    ordem_colunas = [c.coluna for c in colunas]
+    agrupados = [c.coluna for c in colunas if c.agrupamento]
 
     if not df_json:
         return HttpResponse(status=404)
@@ -119,6 +122,19 @@ def download_manager(request, formato):
     df = pd.read_json(df_json)
     for data in df.select_dtypes(include="datetime64[ns]").columns:
         df[data] = df[data].dt.strftime("%Y-%m-%d")
+
+    df = df[ordem_colunas]
+
+    for coluna in colunas:
+        if not coluna.visibilidade:
+            df = df.drop(columns=coluna.coluna)
+            colunas = colunas.exclude(pk=coluna.id)
+
+    for k, v in filtros_atuais.items():
+        try:
+            filtros_atuais[k] = datetime.strptime(v, "%Y-%m-%d").date()
+        except Exception:
+            pass
 
     if formato == "csv":
         response = HttpResponse(content_type="text/csv")
@@ -146,9 +162,18 @@ def download_manager(request, formato):
                 )  # margem extra
                 worksheet.set_column(i, i, max_len)
     elif formato == "pdfv":
-        tabela_html = df.to_html(
-            index=False, border=0, classes="tabela", justify="left"
+
+        linhas = sorted(
+            df.to_dict(orient="records"),
+            key=lambda x: tuple(x[col] for col in agrupados),
         )
+
+        grupos = []
+
+        for chave, grupo in groupby(
+            linhas, key=lambda x: tuple(x[col] for col in agrupados)
+        ):
+            grupos.append({"chave": chave, "linhas": list(grupo)})
 
         html_string = render_to_string(
             "relatorios/relatorio_exportacao.html",
@@ -157,7 +182,8 @@ def download_manager(request, formato):
                 "data_geracao": datetime.now().strftime("%D/%M/%Y %H:%M"),
                 "filtros": filtros,
                 "parametros": filtros_atuais,
-                "tabela_html": tabela_html.replace("None", "").replace("NaN", ""),
+                "grupos": grupos,
+                "colunas": colunas,
                 "orientacao": "portrait",
             },
         )
@@ -169,9 +195,17 @@ def download_manager(request, formato):
         )
         html.write_pdf(response)
     elif formato == "pdfh":
-        tabela_html = df.to_html(
-            index=False, border=0, classes="tabela", justify="left"
+        linhas = sorted(
+            df.to_dict(orient="records"),
+            key=lambda x: tuple(x[col] for col in agrupados),
         )
+
+        grupos = []
+
+        for chave, grupo in groupby(
+            linhas, key=lambda x: tuple(x[col] for col in agrupados)
+        ):
+            grupos.append({"chave": chave, "linhas": list(grupo)})
 
         html_string = render_to_string(
             "relatorios/relatorio_exportacao.html",
@@ -180,7 +214,8 @@ def download_manager(request, formato):
                 "data_geracao": datetime.now().strftime("%D/%M/%Y %H:%M"),
                 "filtros": filtros,
                 "parametros": filtros_atuais,
-                "tabela_html": tabela_html.replace("None", "").replace("NaN", ""),
+                "grupos": grupos,
+                "colunas": colunas,
                 "orientacao": "landscape",
             },
         )
