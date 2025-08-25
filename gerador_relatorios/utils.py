@@ -80,3 +80,13 @@ def verificar_colunas(query: str, filtros):
         colunas_list.append(coluna)
 
     return colunas_list
+
+
+def somar_coluna(grupo, colunas):
+    tot = {}
+    for c in colunas:
+        if c.totalizar:
+            tot[c.coluna] = sum(float(l[c.coluna].replace(",", ".")) for l in grupo)
+        else:
+            tot[c.coluna] = ""
+    return tot

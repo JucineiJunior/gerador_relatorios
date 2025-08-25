@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load custom_tags %}
+{% load custom_tags humanize %}
 <html lang="pt">
   <meta name="description" content="{{ titulo }}">
   <meta name="keywords" content="{{ colunas }}">
@@ -32,7 +32,7 @@
     <ul>
       {% for filtro in filtros %}
         {% for x, y in parametros.items %}
-          {% if filtro.variavel == x %}<li>{{ filtro.exibicao }}:{{ y }}</li>{% endif %}
+          {% if filtro.variavel == x %}<li>{{ filtro.exibicao }}:{{ y|todas_ou_valor|format_date }}</li>{% endif %}
         {% endfor %}
       {% endfor %}
     </ul>
@@ -58,6 +58,17 @@
               {% endfor %}
             </tr>
           {% endfor %}
+          <tr>
+            {% for coluna in colunas %}
+              {% if not coluna.agrupamento %}
+                <td>
+                  {% if grupo.totais|get_item:coluna.coluna != "" %}
+                    {{ grupo.totais|get_item:coluna.coluna|to_int|floatformat:2|intcomma }}
+                  {% endif %}
+                </td>
+              {% endif %}
+            {% endfor %}
+          </tr>
         </tbody>
       </table>
     {% endfor %}

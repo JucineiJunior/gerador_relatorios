@@ -71,18 +71,7 @@ class Colunas(models.Model):
     ordem = models.IntegerField(null=True)
     largura = models.IntegerField(null=True)
     agrupamento = models.BooleanField(default=False)
-    totalizar = models.CharField(
-        max_length=3,
-        choices=(
-            ("nao", "Nenhum"),
-            ("sum", "Somar"),
-            ("mid", "Média"),
-            ("con", "Contabilizar"),
-            ("max", "Maximo"),
-            ("min", "Minimo"),
-        ),
-        default=None,
-    )
+    totalizar = models.BooleanField(default=False)
     visibilidade = models.BooleanField(default=True)
 
     def __str__(self):

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from smtplib import SMTP
 from itertools import groupby
 from io import StringIO
@@ -11,8 +11,12 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 
 from administrador.models import Empresa, Filtros, Perfil, Relatorios, Setores, Colunas
-from gerador_relatorios.utils import executar_query, format_numbers
+from gerador_relatorios.utils import executar_query, format_numbers, somar_coluna
 from usuario.forms import SugestaoForm
+
+import locale
+
+locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 # Create your views here.
 
@@ -95,7 +99,7 @@ def gerar_relatorio(request, relatorio_id):
         request.session["relatorio_nome"] = relatorio.nome
         request.session["filtros"] = filtros
         request.session["filtros_gerados"] = parametros
-        request.session["relatorio_id"] = relatorio.id
+        request.session["relatorio_id"] = relatorio.id  # type: ignore
     context = {
         "relatorio": relatorio,
         "filtros": filtros,  # Envia os filtros usados de volta para o template
@@ -121,21 +125,20 @@ def download_manager(request, formato):
         return HttpResponse(status=404)
 
     df = pd.read_json(df_json)
-    for data in df.select_dtypes(include="datetime64[ns]").columns:
-        df[data] = df[data].dt.strftime("%Y-%m-%d")
 
     df = df[ordem_colunas]
 
     for coluna in colunas:
         if not coluna.visibilidade:
             df = df.drop(columns=coluna.coluna)
-            colunas = colunas.exclude(pk=coluna.id)
+            colunas = colunas.exclude(pk=coluna.id)  # type: ignore
 
     for k, v in filtros_atuais.items():
         if k == "empresa" and v == 0:
-            filtros_atuais[k] == "Todas"
+            filtros_atuais[k] == "Todas"  # type: ignore
         try:
-            filtros_atuais[k] = datetime.strptime(v, "%Y-%m-%d").date()
+            v = datetime.strptime(v, "%d-%m-%Y").date()  # type: ignore
+            filtros_atuais[k] = v.strftime("%d/%m/%Y")
         except Exception:
             pass
 
@@ -172,12 +175,29 @@ def download_manager(request, formato):
                 key=lambda x: tuple(x[col] for col in agrupados),
             )
             grupos = []
-            for chave, grupo in groupby(
+            for chave, grupo_iter in groupby(
                 linhas, key=lambda x: tuple(x[col] for col in agrupados)
             ):
-                grupos.append({"chave": chave, "linhas": list(grupo)})
+                grupo_list = list(grupo_iter)
+                grupos.append(
+                    {
+                        "chave": chave,
+                        "linhas": grupo_list,
+                        "totais": somar_coluna(grupo_list, colunas),
+                    }
+                )
         else:
-            grupos = [{"chave": [], "linhas": linhas}]
+            grupos = [
+                {"chave": [], "linhas": linhas, "totais": somar_coluna(linhas, colunas)}
+            ]
+        for linha in linhas:
+            for k, v in linha.items():
+                try:
+                    v = datetime.strptime(v, "%Y-%m-%d")
+                except:
+                    pass
+                if isinstance(v, (datetime, date)):
+                    linha[k] = v.strftime("%d/%m/%Y")
 
         html_string = render_to_string(
             "relatorios/relatorio_exportacao.html",

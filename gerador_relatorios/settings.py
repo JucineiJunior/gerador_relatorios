@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "djecrety",
+    "django.contrib.humanize",
 ]
 
 MIDDLEWARE = [
@@ -122,7 +123,7 @@ LOGIN_REDIRECT_URL = "/"
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "pt-br"
+LANGUAGE_CODE = "pt-BR"
 
 TIME_ZONE = "America/Bahia"
 
