@@ -1,6 +1,7 @@
 from datetime import datetime
 from smtplib import SMTP
 from itertools import groupby
+from io import StringIO
 
 import pandas as pd
 from django.contrib.auth.decorators import login_required
@@ -105,7 +106,7 @@ def gerar_relatorio(request, relatorio_id):
 
 
 def download_manager(request, formato):
-    df_json = request.session.get("relatorio_gerado")
+    df_json = StringIO(request.session.get("relatorio_gerado"))
     nome = request.session.get("relatorio_nome")
     filtros = request.session.get("filtros")
     filtros_atuais = request.session.get("filtros_gerados")
@@ -131,6 +132,8 @@ def download_manager(request, formato):
             colunas = colunas.exclude(pk=coluna.id)
 
     for k, v in filtros_atuais.items():
+        if k == "empresa" and v == 0:
+            filtros_atuais[k] == "Todas"
         try:
             filtros_atuais[k] = datetime.strptime(v, "%Y-%m-%d").date()
         except Exception:
@@ -162,24 +165,25 @@ def download_manager(request, formato):
                 )  # margem extra
                 worksheet.set_column(i, i, max_len)
     elif formato == "pdfv":
-
-        linhas = sorted(
-            df.to_dict(orient="records"),
-            key=lambda x: tuple(x[col] for col in agrupados),
-        )
-
-        grupos = []
-
-        for chave, grupo in groupby(
-            linhas, key=lambda x: tuple(x[col] for col in agrupados)
-        ):
-            grupos.append({"chave": chave, "linhas": list(grupo)})
+        linhas = df.to_dict(orient="records")
+        if agrupados:
+            linhas = sorted(
+                linhas,
+                key=lambda x: tuple(x[col] for col in agrupados),
+            )
+            grupos = []
+            for chave, grupo in groupby(
+                linhas, key=lambda x: tuple(x[col] for col in agrupados)
+            ):
+                grupos.append({"chave": chave, "linhas": list(grupo)})
+        else:
+            grupos = [{"chave": [], "linhas": linhas}]
 
         html_string = render_to_string(
             "relatorios/relatorio_exportacao.html",
             {
                 "titulo": f"{nome.capitalize()}",
-                "data_geracao": datetime.now().strftime("%D/%M/%Y %H:%M"),
+                "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
                 "filtros": filtros,
                 "parametros": filtros_atuais,
                 "grupos": grupos,
@@ -195,23 +199,25 @@ def download_manager(request, formato):
         )
         html.write_pdf(response)
     elif formato == "pdfh":
-        linhas = sorted(
-            df.to_dict(orient="records"),
-            key=lambda x: tuple(x[col] for col in agrupados),
-        )
-
-        grupos = []
-
-        for chave, grupo in groupby(
-            linhas, key=lambda x: tuple(x[col] for col in agrupados)
-        ):
-            grupos.append({"chave": chave, "linhas": list(grupo)})
+        linhas = df.to_dict(orient="records")
+        if agrupados:
+            linhas = sorted(
+                linhas,
+                key=lambda x: tuple(x[col] for col in agrupados),
+            )
+            grupos = []
+            for chave, grupo in groupby(
+                linhas, key=lambda x: tuple(x[col] for col in agrupados)
+            ):
+                grupos.append({"chave": chave, "linhas": list(grupo)})
+        else:
+            grupos = [{"chave": [], "linhas": linhas}]
 
         html_string = render_to_string(
             "relatorios/relatorio_exportacao.html",
             {
                 "titulo": f"{nome.capitalize()}",
-                "data_geracao": datetime.now().strftime("%D/%M/%Y %H:%M"),
+                "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
                 "filtros": filtros,
                 "parametros": filtros_atuais,
                 "grupos": grupos,
