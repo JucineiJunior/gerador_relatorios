@@ -1,4 +1,5 @@
 # forms.py
+from cProfile import label
 from django import forms
 
 from administrador.models import Colunas, Empresa, Filtros, Relatorios, Setores, User
@@ -85,7 +86,7 @@ class RelatorioForm(forms.ModelForm):
 
 class EditarRelatorioForm(forms.Form):
     nome = forms.CharField(widget=forms.TextInput, label="Nome")
-    query = forms.CharField(widget=forms.Textarea, label="query")
+    query = forms.CharField(widget=forms.Textarea, label="Query")
     setor = forms.ModelChoiceField(
         queryset=Setores.objects.all(), required=True, label="setores"
     )
@@ -97,10 +98,24 @@ class FiltroForm(forms.ModelForm):
         fields = ["exibicao", "variavel", "tipo"]
 
 
+class EditarFiltroForm(forms.Form):
+    exibicao = forms.CharField(widget=forms.TextInput, label="Exibicao")
+    variavel = forms.CharField(widget=forms.TextInput, label="Variavel")
+    tipo = forms.ChoiceField(choices=Filtros.TIPO_CHOICES, label="Tipo")
+
+
 class ColunasForm(forms.ModelForm):
     class Meta:
         model = Colunas
         fields = ["ordem", "largura", "totalizar", "agrupamento", "visibilidade"]
+
+
+class EditarColunasForm(forms.Form):
+    ordem = forms.IntegerField(label="Ordem")
+    largura = forms.IntegerField(label="Lagura")
+    totalizar = forms.BooleanField(label="Somar")
+    agrupamento = forms.BooleanField(label="Agrupar")
+    visibilidade = forms.BooleanField(label="Exibir")
 
 
 # cadastrar_setor

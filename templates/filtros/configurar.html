@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container bg-secondary text-light">
+        <h3 class="m-2">Configurar filtros do relatório: {{ relatorio.nome }}</h3>
+        <form method="post" class="form-primary">
+            {% for form in forms %}
+                <div class="border m-1 d-inline-block p-1 rounded">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="m-2 p-2">
+                        {{ form.exibicao.label_tag }}
+                        {{ form.exibicao }}
+                    </div>
+                    <div class="m-2 p-2">
+                        {{ form.variavel.label_tag }}
+                        {{ form.variavel }}
+                    </div>
+                    <div class="m-2 p-2">
+                        {{ form.tipo.label_tag }}
+                        {{ form.tipo }}
+                    </div>
+                </div>
+            {% endfor %}
+            <br>
+            <button type="submit" class="btn btn-success m-3">Salvar Alterações</button>
+            <a href="{% url 'admin_view' %}?secao=relatorios"
+               class="btn btn-danger m-3">Cancelar</a>
+        </form>
+    </div>
+{% endblock content %}

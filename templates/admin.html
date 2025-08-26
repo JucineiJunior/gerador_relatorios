@@ -64,7 +64,11 @@
                             <td scope="row">{{ relatorio.setores.nome }}</td>
                             <td>
                                 <a href="{% url 'editar_relatorios' relatorio.id %}"
-                                   class="btn btn-sm btn-secondary">Editar</a>
+                                   class="btn btn-sm btn-success">Editar</a>
+                                <a href="{% url 'editar_filtros' relatorio.id %}"
+                                   class="btn btn-sm btn-primary">Filtros</a>
+                                <a href="{% url 'configurar_colunas' relatorio.id %}"
+                                   class="btn btn-sm btn-secondary">Formatação</a>
                                 <a href="{% url 'excluir_relatorio' relatorio.id %}"
                                    class="btn btn-sm btn-danger">Excluir</a>
                             </td>

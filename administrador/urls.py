@@ -5,6 +5,8 @@ from .views import (
     admin_view,
     alterar_senha_usuario,
     cadastrar_relatorio,
+    editar_filtros,
+    editar_formatacao,
     editar_relatorios,
     cadastrar_usuario,
     deletar_usuario,
@@ -63,5 +65,13 @@ urlpatterns = [
         "relatorios/colunas/<int:relatorio_id>/",
         configurar_formatacao,
         name="configurar_formatacao",
+    ),
+    path(
+        "relatorios/filtros/<int:relatorio_id>/", editar_filtros, name="editar_filtros"
+    ),
+    path(
+        "relatorios/formatacao/<int:relatorio_id>/",
+        editar_formatacao,
+        name="configurar_colunas",
     ),
 ]

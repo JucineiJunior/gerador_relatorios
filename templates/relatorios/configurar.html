@@ -1,22 +1,19 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-<div class="container text-center bg-secondary text-light">
-    <h3 class="m-2">Configurar Relatório: {{relatorio.nome}}</h2>
+  <div class="container text-center bg-secondary text-light">
+    <h3 class="m-2">Configurar Relatório: {{ relatorio.nome }}</h3>
     <form method="post" class="form-primary">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        <div class="mb-3">
-          {{ form.nome.label_tag }} {{ form.nome }}
-        </div>
-        <div>
-          {{ form.setor.label_tag }} {{ form.setor }}
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Query SQL:</label>
-            <textarea name="query" class="form-control" rows="6" required>{{ relatorio.query }}</textarea>
-        </div>
-        <button type="submit" class="btn btn-success ">Salvar Alterações</button>
-        <a href="{% url 'admin_view' %}?secao=relatorios" class="btn btn-secondary ">Cancelar</a>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="mb-3">{{ form.nome.label_tag }} {{ form.nome }}</div>
+      <div>{{ form.setor.label_tag }} {{ form.setor }}</div>
+      <div class="mb-3">
+        <label class="form-label">Query SQL:</label>
+        <textarea name="query" class="form-control" rows="6" required>{{ relatorio.query }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-success ">Salvar Alterações</button>
+      <a href="{% url 'admin_view' %}?secao=relatorios"
+         class="btn btn-secondary ">Cancelar</a>
     </form>
-</div>
-{% endblock %}
+  </div>
+{% endblock content %}
