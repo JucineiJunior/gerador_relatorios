@@ -113,9 +113,9 @@ class ColunasForm(forms.ModelForm):
 class EditarColunasForm(forms.Form):
     ordem = forms.IntegerField(label="Ordem")
     largura = forms.IntegerField(label="Lagura")
-    totalizar = forms.BooleanField(label="Somar")
-    agrupamento = forms.BooleanField(label="Agrupar")
-    visibilidade = forms.BooleanField(label="Exibir")
+    totalizar = forms.BooleanField(label="Somar", required=False)
+    agrupamento = forms.BooleanField(label="Agrupar", required=False)
+    visibilidade = forms.BooleanField(label="Exibir", required=False)
 
 
 # cadastrar_setor

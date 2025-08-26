@@ -339,7 +339,6 @@ def editar_formatacao(request, relatorio_id):
         for coluna in colunas:
             form = EditarColunasForm(request.POST)
             if form.is_valid():
-                coluna.coluna = form.cleaned_data["coluna"]
                 coluna.ordem = form.cleaned_data["ordem"]
                 coluna.largura = form.cleaned_data["largura"]
                 coluna.totalizar = form.cleaned_data["totalizar"]
@@ -354,7 +353,6 @@ def editar_formatacao(request, relatorio_id):
         for coluna in colunas:
             form = EditarColunasForm(
                 initial={
-                    "coluna": coluna.coluna,
                     "ordem": coluna.ordem,
                     "largura": coluna.largura,
                     "totalizar": coluna.totalizar,
