@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load custom_tags %}
+{% block content %}
+    <div class="container border rounded bg-secondary border-secondary mt-10">
+        <form method="post">
+            {{ form.media.js }}
+            {{ form.media.css }}
+            <h3>Agendamento do relatorio: {{ relatorio.nome }}</h3>
+            {% csrf_token %}
+            <div class="m-2 p-1 d-inline-block bg-light text-dark rounded">
+                {{ form.metodo.label }}
+                <br>
+                {{ form.metodo }}
+            </div>
+            <div class="m-2 p-1 d-inline-block bg-light text-dark rounded">
+                {{ form.intervalo.label }}
+                <br>
+                {{ form.intervalo }}
+            </div>
+            <br>
+            <div class="m-2 p-1 d-inline-block bg-light text-dark rounded">
+                {{ form.beneficiados.label }}
+                <br>
+                {{ form.beneficiados|debug_html }}
+            </div>
+            <button type="submit" class="m-4 btn btn-success">Salvar</button>
+        </form>
+    </div>
+{% endblock content %}

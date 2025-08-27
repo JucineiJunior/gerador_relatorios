@@ -1,7 +1,13 @@
-from django.urls import path
+from django.urls import path, include
 from django.shortcuts import redirect
 
-from .views import home_view, gerar_relatorio, download_manager, sugestao_view
+from .views import (
+    home_view,
+    gerar_relatorio,
+    download_manager,
+    sugestao_view,
+    agendar_emissao,
+)
 
 urlpatterns = [
     path("", home_view, name="home_view"),
@@ -12,5 +18,6 @@ urlpatterns = [
         name="admin_redirect",
     ),
     path("download/<str:formato>/", download_manager, name="exports"),
-    path("contato", sugestao_view, name="contato")
+    path("contato/", sugestao_view, name="contato"),
+    path("agendar/<int:relatorio_id>/", agendar_emissao, name="agendamento"),
 ]

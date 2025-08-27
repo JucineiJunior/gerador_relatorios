@@ -40,11 +40,9 @@ def executar_query(relatorio, filtros):
         return dados
 
 
-def format_numbers(x):
+def format_numbers(x, old, new):
     try:
-        # tenta converter para float, se der certo formata com ","
-        float(x)
-        return str(x).replace(".", ",")
+        return str(x).replace(old, new)
     except (ValueError, TypeError):
         return x
 

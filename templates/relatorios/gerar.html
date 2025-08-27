@@ -13,6 +13,10 @@
       <a href="{% url 'exports' 'xlsx' %}" class="btn btn-primary mx-1 my-2">Excel</a>
       <a href="{% url 'exports' 'pdfv' %}" class="btn btn-primary mx-1 my-2">PDF vertical</a>
       <a href="{% url 'exports' 'pdfh' %}" class="btn btn-primary mx-1 my-2">PDF horizontal</a>
+      {% if user.is_superuser %}
+        <a href="{% url 'agendamento' relatorio_id=relatorio.id %}"
+           class="btn btn-warning m-2">Agendar</a>
+      {% endif %}
     </div>
   </div>
   <script>

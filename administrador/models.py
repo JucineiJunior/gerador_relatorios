@@ -45,7 +45,7 @@ class Perfil(models.Model):
     relatorios = models.ManyToManyField(Relatorios)
 
     def __str__(self):  # type: ignore
-        return f"{self.user.username} ({self.setor})"  # type: ignore
+        return f"{self.nome}"  # type: ignore
 
 
 class Logs(models.Model):

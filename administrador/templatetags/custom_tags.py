@@ -49,3 +49,9 @@ def format_date(value, fmt="%d/%m/%Y"):
 @register.filter
 def todas_ou_valor(value):
     return "Todas" if str(value) == "0" else value
+
+
+@register.filter
+def debug_html(obj):
+    print(obj)
+    return obj

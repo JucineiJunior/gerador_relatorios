@@ -18,7 +18,8 @@ Including another URLconf
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import include, path
+from django.shortcuts import redirect
+from django.urls import include, path, re_path
 
 from administrador import urls as admin_urls
 from usuario import urls as home_urls
@@ -33,4 +34,5 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
+    re_path(r".*login.*", lambda request: redirect("login")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

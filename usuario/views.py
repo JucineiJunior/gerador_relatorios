@@ -3,6 +3,7 @@ from smtplib import SMTP
 from itertools import groupby
 from io import StringIO
 
+from django.forms import modelform_factory
 import pandas as pd
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -12,9 +13,11 @@ from weasyprint import HTML
 
 from administrador.models import Empresa, Filtros, Perfil, Relatorios, Setores, Colunas
 from gerador_relatorios.utils import executar_query, format_numbers, somar_coluna
-from usuario.forms import SugestaoForm
+from usuario.forms import AgendamentoForm, SugestaoForm
 
 import locale
+
+from usuario.models import Agendamentos
 
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
@@ -86,8 +89,8 @@ def gerar_relatorio(request, relatorio_id):
 
         resultados = executar_query(relatorio, parametros)
 
-        resultados = resultados.applymap(
-            format_numbers
+        resultados = resultados.map(
+            format_numbers, old=".", new=","
         )  # pyright: ignore[reportCallIssue]
 
         try:
@@ -143,6 +146,7 @@ def download_manager(request, formato):
             pass
 
     if formato == "csv":
+        df = df.map(format_numbers, old=",", new=".")
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = (
             f"attachment; filename={nome.capitalize()}.csv"
@@ -265,3 +269,17 @@ def sugestao_view(request):
         form = SugestaoForm()
 
     return render(request, "sugestao.html", {"form": form})
+
+
+@login_required
+def agendar_emissao(request, relatorio_id):
+    relatorio = Relatorios.objects.get(id=relatorio_id)
+
+    if request.method == "POST":
+        form = AgendamentoForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = AgendamentoForm()
+
+    return render(request, "agendamento.html", {"form": form, "relatorio": relatorio})
