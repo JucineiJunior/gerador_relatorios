@@ -294,36 +294,26 @@ def editar_relatorios(request, relatorio_id):
 def editar_filtros(request, relatorio_id):
     relatorio = Relatorios.objects.get(id=relatorio_id)
     filtros = Filtros.objects.filter(relatorio_id=relatorio_id)
-
-    filtros_atuais = []
+    FiltrosFormSet = modelformset_factory(
+        Filtros, fields=["exibicao", "variavel", "tipo"], extra=0
+    )
 
     if request.method == "POST":
-        for filtro in filtros:
-            form = EditarFiltroForm(request.POST)
-            if form.is_valid():
-                filtro.exibicao = form.cleaned_data["exibicao"]
-                filtro.variavel = form.cleaned_data["variavel"]
-                filtro.tipo = form.cleaned_data["tipo"]
-                filtro.save()
+        formset = FiltrosFormSet(request.POST, queryset=filtros)
+        if formset.is_valid():
+            formset.save()
+            return redirect("/admin/?secao=relatorios")
+        else:
+            formset = FiltrosFormSet(queryset=filtros)
+            print(formset.is_valid())
 
-        messages.success(request, "Relatorio atualizado com sucesso")
-
-        return redirect("/admin/?secao=relatorios")
     else:
-        for filtro in filtros:
-            form = EditarFiltroForm(
-                initial={
-                    "exibicao": filtro.exibicao,
-                    "variavel": filtro.variavel,
-                    "tipo": filtro.tipo,
-                }
-            )
-            filtros_atuais.append(form)
+        formset = FiltrosFormSet(queryset=filtros)
 
     return render(
         request,
         "filtros/configurar.html",
-        {"forms": filtros_atuais, "relatorio": relatorio},
+        {"formset": formset, "relatorio": relatorio},
     )
 
 
@@ -332,43 +322,29 @@ def editar_filtros(request, relatorio_id):
 def editar_formatacao(request, relatorio_id):
     relatorio = get_object_or_404(Relatorios, id=relatorio_id)
     colunas = Colunas.objects.filter(relatorio_id=relatorio_id)
-
-    colunas_atuais = []
+    ColunasFormSet = modelformset_factory(
+        Colunas,
+        exclude=["coluna", "relatorio"],
+        extra=0,
+    )
 
     if request.method == "POST":
-        for coluna in colunas:
-            form = EditarColunasForm(request.POST)
-            if form.is_valid():
-                coluna.ordem = form.cleaned_data["ordem"]
-                coluna.largura = form.cleaned_data["largura"]
-                coluna.totalizar = form.cleaned_data["totalizar"]
-                coluna.agrupamento = form.cleaned_data["agrupamento"]
-                coluna.visibilidade = form.cleaned_data["visibilidade"]
-                coluna.save()
-
-            messages.success(request, "Relatorio atualizado com sucesso")
-
+        formset = ColunasFormSet(request.POST, queryset=colunas)
+        if formset.is_valid():
+            formset.save()
             return redirect("/admin/?secao=relatorios")
     else:
-        for coluna in colunas:
-            form = EditarColunasForm(
-                initial={
-                    "ordem": coluna.ordem,
-                    "largura": coluna.largura,
-                    "totalizar": coluna.totalizar,
-                    "agrupamento": coluna.agrupamento,
-                    "visibilidade": coluna.visibilidade,
-                }
-            )
-            colunas_atuais.append(form)
+        formset = ColunasFormSet(queryset=colunas)
+
+    for form in formset:
+        for name, field in form.fields.items():
+            if name != "id":
+                field.widget.attrs["class"] = "m-1 p-1"
 
     return render(
         request,
         "relatorios/configurar_formatacao.html",
-        {
-            "forms": zip(colunas_atuais, [coluna.coluna for coluna in colunas]),
-            "relatorio": relatorio,
-        },
+        {"formset": formset, "relatorio": relatorio, "colunas": colunas},
     )
 
 

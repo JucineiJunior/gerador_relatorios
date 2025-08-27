@@ -3,10 +3,11 @@
     <div class="container bg-secondary text-light">
         <h3 class="m-2">Configurar filtros do relatório: {{ relatorio.nome }}</h3>
         <form method="post" class="form-primary">
-            {% for form in forms %}
+            {% csrf_token %}
+            {{ formset.management_form }}
+            {% for form in formset %}
                 <div class="border m-1 d-inline-block p-1 rounded">
-                    {% csrf_token %}
-                    {{ form.non_field_errors }}
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
                     <div class="m-2 p-2">
                         {{ form.exibicao.label_tag }}
                         {{ form.exibicao }}
