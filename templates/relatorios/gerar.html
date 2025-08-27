@@ -1,26 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-<div class="container mt-4">
-  <h2 class='text-center'>{{relatorio.nome|capfirst}}</h2>
-  {{ resultados|safe }}
-  <h3 class='text-center'>Exportar</h3>
-  <div class="container d-flex justify-content-center">
-    <a href="{% url 'exports' 'csv' %}" class="btn btn-primary mx-1 my-2">CSV</a>
-    <a href="{% url 'exports' 'xlsx' %}" class="btn btn-primary mx-1 my-2">Excel</a>
-    <a href="{% url 'exports' 'pdfv' %}" class="btn btn-primary mx-1 my-2">PDF vertical</a>
-    <a href="{% url 'exports' 'pdfh' %}" class="btn btn-primary mx-1 my-2">PDF horizontal</a>
+  <link rel="stylesheet"
+        href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+  <div class="container mt-4">
+    <h2 class="text-center">{{ relatorio.nome|capfirst }}</h2>
+    {{ resultados|safe }}
+    <h3 class="text-center">Exportar</h3>
+    <div class="container d-flex justify-content-center">
+      <a href="{% url 'exports' 'csv' %}" class="btn btn-primary mx-1 my-2">CSV</a>
+      <a href="{% url 'exports' 'xlsx' %}" class="btn btn-primary mx-1 my-2">Excel</a>
+      <a href="{% url 'exports' 'pdfv' %}" class="btn btn-primary mx-1 my-2">PDF vertical</a>
+      <a href="{% url 'exports' 'pdfh' %}" class="btn btn-primary mx-1 my-2">PDF horizontal</a>
+    </div>
   </div>
-</div>
-<script>
+  <script>
 $(document).ready(function() {
     $('table').DataTable({
         paging: true,
         searching: true,
-        ordering: true
+        ordering: false
     });
 });
-</script>
-{% endblock %}
+  </script>
+{% endblock content %}

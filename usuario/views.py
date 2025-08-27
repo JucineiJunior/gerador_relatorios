@@ -167,7 +167,7 @@ def download_manager(request, formato):
                     max(df[col].astype(str).map(len).max(), len(col)) + 2
                 )  # margem extra
                 worksheet.set_column(i, i, max_len)
-    elif formato == "pdfv":
+    elif formato.startswith("pdf"):
         linhas = df.to_dict(orient="records")
         if agrupados:
             linhas = sorted(
@@ -199,39 +199,10 @@ def download_manager(request, formato):
                 if isinstance(v, (datetime, date)):
                     linha[k] = v.strftime("%d/%m/%Y")
 
-        html_string = render_to_string(
-            "relatorios/relatorio_exportacao.html",
-            {
-                "titulo": f"{nome.capitalize()}",
-                "data_geracao": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                "filtros": filtros,
-                "parametros": filtros_atuais,
-                "grupos": grupos,
-                "colunas": colunas,
-                "orientacao": "portrait",
-            },
-        )
-
-        html = HTML(string=html_string)
-        response = HttpResponse(content_type="aplication/pdf")
-        response["Content-Disposition"] = (
-            f"attachment; filename={nome.capitalize()}.pdf"
-        )
-        html.write_pdf(response)
-    elif formato == "pdfh":
-        linhas = df.to_dict(orient="records")
-        if agrupados:
-            linhas = sorted(
-                linhas,
-                key=lambda x: tuple(x[col] for col in agrupados),
-            )
-            grupos = []
-            for chave, grupo in groupby(
-                linhas, key=lambda x: tuple(x[col] for col in agrupados)
-            ):
-                grupos.append({"chave": chave, "linhas": list(grupo)})
-        else:
-            grupos = [{"chave": [], "linhas": linhas}]
+        if formato.endswith("v"):
+            orientacao = "portrait"
+        elif formato.endswith("h"):
+            orientacao = "landscape"
 
         html_string = render_to_string(
             "relatorios/relatorio_exportacao.html",
@@ -242,15 +213,18 @@ def download_manager(request, formato):
                 "parametros": filtros_atuais,
                 "grupos": grupos,
                 "colunas": colunas,
-                "orientacao": "landscape",
+                "orientacao": orientacao,
             },
         )
+
+        html_string = html_string.replace("None", "")
 
         html = HTML(string=html_string)
         response = HttpResponse(content_type="aplication/pdf")
         response["Content-Disposition"] = (
             f"attachment; filename={nome.capitalize()}.pdf"
         )
+
         html.write_pdf(response)
 
     else:
