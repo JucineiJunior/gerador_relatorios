@@ -84,7 +84,10 @@ def somar_coluna(grupo, colunas):
     tot = {}
     for c in colunas:
         if c.totalizar:
-            tot[c.coluna] = sum(float(l[c.coluna].replace(",", ".")) for l in grupo)
+            try:
+                tot[c.coluna] = sum(float(l[c.coluna].replace(",", ".")) for l in grupo)
+            except ValueError:
+                tot[c.coluna] = (l[c.coluna] for l in grupo)
         else:
             tot[c.coluna] = ""
     return tot

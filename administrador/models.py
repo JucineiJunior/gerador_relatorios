@@ -7,7 +7,7 @@ class Setores(models.Model):
     nome = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.nome
+        return str(self.nome)
 
 
 class Relatorios(models.Model):
@@ -16,7 +16,7 @@ class Relatorios(models.Model):
     setores = models.ForeignKey(Setores, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.nome
+        return str(self.nome)
 
 
 class Filtros(models.Model):
@@ -66,13 +66,13 @@ class Empresa(models.Model):
 
 
 class Colunas(models.Model):
-    coluna = models.CharField()
+    coluna = models.CharField(max_length=255)
     relatorio = models.ForeignKey(Relatorios, on_delete=models.CASCADE, null=False)
     ordem = models.IntegerField(null=True)
     largura = models.IntegerField(null=True)
-    agrupamento = models.BooleanField(default=False)
-    totalizar = models.BooleanField(default=False)
-    visibilidade = models.BooleanField(default=True)
+    agrupamento = models.BooleanField()
+    totalizar = models.BooleanField()
+    visibilidade = models.BooleanField()
 
     def __str__(self):
         return f"{self.coluna}"

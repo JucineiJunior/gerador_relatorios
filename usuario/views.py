@@ -1,25 +1,18 @@
 from datetime import datetime, date
-from smtplib import SMTP
 from itertools import groupby
 from io import StringIO
-
-from django.forms import modelform_factory
+from weasyprint import HTML
 import pandas as pd
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from weasyprint import HTML
+from django.core.mail import send_mail
 
 from administrador.models import Empresa, Filtros, Perfil, Relatorios, Setores, Colunas
 from gerador_relatorios.utils import executar_query, format_numbers, somar_coluna
 from usuario.forms import AgendamentoForm, SugestaoForm
-
-import locale
-
-from usuario.models import Agendamentos
-
-locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 # Create your views here.
 
@@ -89,10 +82,9 @@ def gerar_relatorio(request, relatorio_id):
 
         resultados = executar_query(relatorio, parametros)
 
-        resultados = resultados.map(
-            format_numbers, old=".", new=","
-        )  # pyright: ignore[reportCallIssue]
-
+        resultados = pd.DataFrame(
+            resultados.map(format_numbers, old=".", new=",")  # type: ignore
+        )
         try:
             for data in resultados.select_dtypes(include="datetime64[ns]").columns:
                 resultados[data] = resultados[data].dt.strftime("%Y-%m-%d")
@@ -119,7 +111,7 @@ def download_manager(request, formato):
     filtros_atuais = request.session.get("filtros_gerados")
 
     relatorio_id = request.session.get("relatorio_id")
-    colunas = Colunas.objects.filter(relatorio=relatorio_id).order_by("ordem")
+    colunas = Colunas.objects.filter(relatorio=relatorio_id).order_by("ordem")  # type: ignore
 
     ordem_colunas = [c.coluna for c in colunas]
     agrupados = [c.coluna for c in colunas if c.agrupamento]
@@ -146,7 +138,7 @@ def download_manager(request, formato):
             pass
 
     if formato == "csv":
-        df = df.map(format_numbers, old=",", new=".")
+        df = df.map(format_numbers, old=",", new=".")  # type: ignore
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = (
             f"attachment; filename={nome.capitalize()}.csv"
@@ -168,11 +160,11 @@ def download_manager(request, formato):
             for i, col in enumerate(df.columns):
                 # Pega o tamanho máximo entre nome da coluna e valores
                 max_len = (
-                    max(df[col].astype(str).map(len).max(), len(col)) + 2
+                    max(df[col].astype(str).map(len).max(), len(col)) + 2  # type: ignore
                 )  # margem extra
                 worksheet.set_column(i, i, max_len)
     elif formato.startswith("pdf"):
-        linhas = df.to_dict(orient="records")
+        linhas = df.to_dict(orient="records")  # type: ignore
         if agrupados:
             linhas = sorted(
                 linhas,
@@ -217,7 +209,7 @@ def download_manager(request, formato):
                 "parametros": filtros_atuais,
                 "grupos": grupos,
                 "colunas": colunas,
-                "orientacao": orientacao,
+                "orientacao": orientacao,  # type: ignore
             },
         )
 
@@ -247,22 +239,13 @@ def sugestao_view(request):
             assunto = form.cleaned_data["assunto"]
             mensagem = form.cleaned_data["mensagem"]
 
-            corpo = f"""
-            {mensagem}
-
-            Nome: {perfil.nome or user.username} 
-            Email: {user.email} 
-            Assunto: {assunto}
-
-            """
-            server = SMTP("smtp-relay.gmail.com", 587)
-            server.starttls()
-            server.sendmail(
-                user.email,
-                "jucinei6+o5jgzoi86c8ydffpexpk@boards.trello.com",
-                corpo,
+            send_mail(
+                assunto,
+                mensagem + "\n" + user.email,
+                "topbanho@postotrevo.com.br",
+                ["jucinei6+o5jgzoi86c8ydffpexpk@boards.trello.com"],
+                fail_silently=True,
             )
-            server.quit()
 
             return redirect("home_view")
     else:
@@ -273,7 +256,7 @@ def sugestao_view(request):
 
 @login_required
 def agendar_emissao(request, relatorio_id):
-    relatorio = Relatorios.objects.get(id=relatorio_id)
+    relatorio = Relatorios.objects.get(id=relatorio_id)  # type: ignore
 
     if request.method == "POST":
         form = AgendamentoForm(request.POST)
