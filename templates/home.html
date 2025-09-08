@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 {% block content %}
     <div class="layout text-light">
@@ -32,8 +32,8 @@
             </div>
         {% elif relatorio_selecionado %}
             <div class="container w-50 mx-auto border rounded bg-dark text-light mt-3">
-                <h3 class='my-2 text-center'>Filtros para: {{ relatorio_selecionado.nome }}</h3>
-                <form method="POST"
+                <h3 class="my-2 text-center">Filtros para: {{ relatorio_selecionado.nome }}</h3>
+                <form method="post"
                       action="{% url 'gerar_relatorio' relatorio_selecionado.id %}">
                     {% csrf_token %}
                     <input type="hidden"
@@ -61,5 +61,6 @@
                     <button type="submit" class="my-3 btn btn-primary">Gerar Relatório</button>
                 </form>
             </div>
-        {% endif %}
-    {% endblock %}
+        </div>
+    {% endif %}
+{% endblock content %}

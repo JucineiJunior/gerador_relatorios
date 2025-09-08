@@ -67,8 +67,13 @@
                                    class="btn btn-sm btn-success">Editar</a>
                                 <a href="{% url 'editar_filtros' relatorio.id %}"
                                    class="btn btn-sm btn-primary">Filtros</a>
-                                <a href="{% url 'configurar_colunas' relatorio.id %}"
-                                   class="btn btn-sm btn-secondary">Formatação</a>
+                                {% if relatorio.tem_colunas %}
+                                    <a href="{% url 'configurar_colunas' relatorio.id %}"
+                                       class="btn btn-sm btn-secondary">Configurar formatação</a>
+                                {% else %}
+                                    <a href="{% url 'configurar_formatacao' relatorio.id %}"
+                                       class="btn btn-sm btn-secondary">Cadastrar formatação</a>
+                                {% endif %}
                                 <a href="{% url 'excluir_relatorio' relatorio.id %}"
                                    class="btn btn-sm btn-danger">Excluir</a>
                             </td>

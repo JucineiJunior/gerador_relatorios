@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.forms import modelformset_factory
+from django.db.models import Exists, OuterRef
 
 from .forms import (
     AlterarSenhaForm,
@@ -37,7 +38,7 @@ def admin_view(request):
     context = {"secao": secao}
 
     if secao == "relatorios":
-        context["relatorios"] = Relatorios.objects.all()  # type: ignore
+        context["relatorios"] = Relatorios.objects.annotate(tem_colunas=Exists(Colunas.objects.filter(relatorio_id=OuterRef("id"))))  # type: ignore
     elif secao == "logs":
         context["logs"] = Logs.objects.all()  # type: ignore
     elif secao == "setores":
