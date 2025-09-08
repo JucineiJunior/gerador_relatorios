@@ -23,7 +23,7 @@ def home_view(request):
     perfil = get_object_or_404(Perfil, user=user.id)
     setores_usuario = perfil.setor.all()
 
-    setor_nome = request.GET.get("setor")
+    setor_nome = request.GET.get("setores")
     relatorio_id = request.GET.get("relatorio")
 
     relatorios = None
@@ -37,7 +37,7 @@ def home_view(request):
         relatorio = get_object_or_404(Relatorios, id=relatorio_id)
         filtros = Filtros.objects.filter(relatorio=relatorio.id)  # type: ignore
         empresas = Empresa.objects.all().values()  # type: ignore
-    elif setor_nome:
+    if setor_nome:
         # Filtrar relatórios por setor, se o setor for do usuário
         setor_selecionado = get_object_or_404(
             Setores,
